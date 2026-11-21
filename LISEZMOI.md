@@ -53,6 +53,8 @@ npm run build    # fabrique la version finale dans le dossier dist
 - `src/scan/ScanCamera.tsx` : lit un code-barres avec la caméra (lecteur intégré au téléphone sur Android, sinon la bibliothèque ZXing).
 - `src/outils/codeBarre.ts` : retrouve l'article quand une douchette tape un code-barres puis Entrée.
 - `src/rapports/RapportVentes.tsx` (+ `rapportVentes` dans `src/db/rapports.ts`) : rapport des ventes par article, catégorie, jour ou ligne par ligne, avec coût et marge.
+- `src/configuration/importExcel.ts` : le modèle Excel de l'étape 2 de l'assistant (« Télécharger le modèle Excel ») et son import (« Importer le fichier rempli ») : produits cochés avec stock et prix, nouveaux produits et catégories créés, unité, code-barres et seuil repris.
+- `src/outils/lireExcel.ts` : lit la première feuille d'un fichier .xlsx (sans bibliothèque en plus).
 - `src/outils/excel.ts` : fabrique un vrai fichier Excel (.xlsx) dans le navigateur, sans serveur.
 - `src/outils/pays.ts` : la liste des pays (indicatif téléphonique, monnaie). Le pays se choisit dans l'assistant de démarrage et dans Paramètres → Librairie ; la monnaie affichée peut être changée.
 - `src/outils/whatsapp.ts` : ouvre WhatsApp avec un message déjà écrit (ticket, rappel de crédit) ; un numéro tapé sans indicatif reçoit celui du pays de la librairie, un numéro avec + garde le sien.

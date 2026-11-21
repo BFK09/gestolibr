@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { db, nouvelId } from '../db/base'
 import { terminerConfiguration } from '../db/configuration'
@@ -7,9 +7,8 @@ import { codeSuivant } from '../catalogue/codeSuivant'
 import { fcfa, lireEntier } from '../outils/format'
 import { definirPays, monnaie, PAYS } from '../outils/pays'
 import { sansAccents } from '../outils/texte'
-
-// Ce qui est tapé pour un produit coché (gardé en texte pendant la saisie).
-interface Saisie { stock: string; prixAchat: string; prixVente: string }
+import { telechargerFichier } from '../outils/excel'
+import { importerProduits, modeleExcel, type Saisie } from './importExcel'
 
 // L'assistant de démarrage, affiché tant que la librairie n'est pas configurée.
 // 1. Identification  2. Choix des produits, stock et prix  3. Vérification et validation
@@ -21,6 +20,9 @@ export default function Configuration() {
   const [categorieId, setCategorieId] = useState('')
   const [nouveau, setNouveau] = useState({ designation: '', categorieId: '' })
   const [erreurs, setErreurs] = useState<string[]>([])
+  const [bilanImport, setBilanImport] = useState<string[]>([])
+  const fichierExcelRempli = useRef<HTMLInputElement>(null)
+  const [seulementChoisis, setSeulementChoisis] = useState(false)
 
   const categories = useLiveQuery(() => db.categories.orderBy('nom').toArray(), [])
   const articles = useLiveQuery(() => db.articles.orderBy('code').toArray(), [])
@@ -41,6 +43,7 @@ export default function Configuration() {
   // ---- Étape 2 : choix des produits ----
   const texte = sansAccents(recherche.trim())
   const visibles = articles.filter((a) =>
+    (!seulementChoisis || !!choix[a.id]) &&
     (!categorieId || a.categorieId === categorieId) &&
     (!texte || sansAccents(`${a.code} ${a.designation}`).includes(texte)))
 
@@ -120,6 +123,28 @@ export default function Configuration() {
     // L'application affiche alors automatiquement la caisse.
   }
 
+  // Variante de l'étape 2 : remplir le modèle Excel, puis l'importer ici.
+  async function importer(e: React.ChangeEvent<HTMLInputElement>) {
+    const f = e.target.files?.[0]
+    e.target.value = ''
+    if (!f) return
+    try {
+      const r = await importerProduits(f)
+      setChoix({ ...choix, ...r.choix })
+      setRecherche('')
+      setCategorieId('')
+      setSeulementChoisis(true)
+      setErreurs([])
+      setBilanImport([
+        `${r.importes} produit(s) importé(s)${r.nouveaux ? `, dont ${r.nouveaux} nouveau(x)` : ''}. Vérifie la liste ci-dessous, puis « Suivant ».`,
+        ...r.remarques,
+      ])
+    } catch (x) {
+      setBilanImport([])
+      setErreurs([(x as Error).message])
+    }
+  }
+
   // Nouveau téléphone : on peut reprendre directement une sauvegarde au lieu de tout configurer.
   async function restaurer(e: React.ChangeEvent<HTMLInputElement>) {
     const f = e.target.files?.[0]
@@ -174,12 +199,24 @@ export default function Configuration() {
             Coche les produits que tu vends ou que tu vas vendre. Pour chacun, indique la quantité
             que tu as aujourd'hui (0 si tu n'en as pas encore), le prix d'achat et le prix de vente d'une unité.
           </p>
+          <div className="carte import-excel">
+            <strong>Tu préfères remplir un fichier Excel ?</strong>
+            <p className="info">Télécharge le modèle, remplis-le sur ton ordinateur (ou fais-le remplir), puis importe-le : les produits seront cochés avec leur stock et leurs prix.</p>
+            <div className="boutons">
+              <button onClick={() => telechargerFichier(modeleExcel(articles, categories), 'GESTOLIBR-produits-a-remplir.xlsx')}>Télécharger le modèle Excel</button>
+              <button className="principal" onClick={() => fichierExcelRempli.current?.click()}>Importer le fichier rempli</button>
+              <input ref={fichierExcelRempli} type="file" accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" onChange={importer} hidden />
+            </div>
+            {bilanImport.length > 0 && <ul className="bilan-import">{bilanImport.map((x) => <li key={x}>{x}</li>)}</ul>}
+          </div>
+
           <div className="filtres">
             <input type="search" placeholder="Rechercher…" value={recherche} onChange={(e) => setRecherche(e.target.value)} />
             <select value={categorieId} onChange={(e) => setCategorieId(e.target.value)}>
               <option value="">Toutes les catégories</option>
               {categories.map((c) => <option key={c.id} value={c.id}>{c.nom}</option>)}
             </select>
+            <label className="case seulement-choisis"><input type="checkbox" checked={seulementChoisis} onChange={(e) => setSeulementChoisis(e.target.checked)} /> Seulement les produits cochés</label>
             <button onClick={() => toutCocher(true)}>Tout cocher</button>
             <button onClick={() => toutCocher(false)}>Tout décocher</button>
           </div>

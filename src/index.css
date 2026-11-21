@@ -85,6 +85,10 @@ h2 { margin: 8px 0; color: var(--bleu); }
 button { padding: 8px 14px; border: 1px solid var(--bord); border-radius: 6px; background: var(--carte); cursor: pointer; }
 button.principal { background: var(--bouton); color: #fff; border-color: var(--bouton); }
 
+.import-excel .boutons { justify-content: flex-start; flex-wrap: wrap; }
+.bilan-import { margin: 10px 0 0; padding-left: 18px; color: var(--vert); }
+.seulement-choisis { display: inline-flex; align-items: center; gap: 6px; }
+.bilan-import li + li { color: var(--doux); }
 .filtres { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 12px 0; }
 .filtres input[type='search'] { flex: 1 1 220px; }
 input, select { padding: 8px 10px; border: 1px solid var(--bord); border-radius: 6px; background: var(--carte); width: 100%; }
