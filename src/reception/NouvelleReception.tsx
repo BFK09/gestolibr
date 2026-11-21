@@ -6,6 +6,7 @@ import { enregistrerReception } from '../db/reception'
 import { fcfa, lireEntier } from '../outils/format'
 import { articleScanne, texteRecherche } from '../outils/codeBarre'
 import ScanCamera from '../scan/ScanCamera'
+import { ScanBarcode } from 'lucide-react'
 
 // Une ligne en cours de saisie (les nombres restent du texte jusqu'à l'enregistrement).
 interface LigneSaisie {
@@ -108,7 +109,7 @@ export default function NouvelleReception() {
         Ajouter un article
         <span className="avec-scan">
           <input type="search" value={recherche} onChange={(e) => { setRecherche(e.target.value); setErreurScan('') }} placeholder="Tape ou scanne un code, ou un nom…" onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); const a = articleScanne(articles!, recherche, suggestions); if (a) ajouter(a); else if (recherche.trim()) setErreurScan(`Aucun article ne correspond à « ${recherche.trim()} ».`) } }} />
-          <button type="button" className="bouton-scan" onClick={() => setScan(true)} aria-label="Scanner avec la caméra">📷</button>
+          <button type="button" className="bouton-scan" onClick={() => setScan(true)} aria-label="Scanner avec la caméra"><ScanBarcode size={20} /></button>
         </span>
         {erreurScan && <small className="alerte">{erreurScan}</small>}
         {scan && (

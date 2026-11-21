@@ -13,11 +13,10 @@ import Rapports from './rapports/Rapports'
 import Clients from './clients/Clients'
 import Parametres from './parametres/Parametres'
 import ListesScolaires from './listes/ListesScolaires'
+import Navigation from './navigation/Navigation'
+import type { Ecran } from './navigation/ecrans'
 
-type Ecran = 'tableau' | 'vente' | 'catalogue' | 'reception' | 'inventaire' | 'clients' | 'listes' | 'rapports' | 'sauvegarde' | 'parametres'
-
-// Le composant principal : la barre du haut, puis l'écran choisi.
-// Les autres écrans (Sauvegarde, Tableau de bord…) s'ajouteront ici au fil des étapes.
+// Le composant principal : la navigation, puis l'écran choisi.
 function App() {
   const [ecran, setEcran] = useState<Ecran>('vente')
   // null = pas encore configurée ; undefined = lecture en cours.
@@ -28,22 +27,8 @@ function App() {
 
   return (
     <>
-      <header className="barre">
-        <strong>{boutique.nom}</strong>
-        <nav>
-          <button className={ecran === 'tableau' ? 'actif' : ''} onClick={() => setEcran('tableau')}>Tableau de bord</button>
-          <button className={ecran === 'vente' ? 'actif' : ''} onClick={() => setEcran('vente')}>Vente</button>
-          <button className={ecran === 'catalogue' ? 'actif' : ''} onClick={() => setEcran('catalogue')}>Catalogue</button>
-          <button className={ecran === 'reception' ? 'actif' : ''} onClick={() => setEcran('reception')}>Réception</button>
-          <button className={ecran === 'inventaire' ? 'actif' : ''} onClick={() => setEcran('inventaire')}>Stock</button>
-          <button className={ecran === 'clients' ? 'actif' : ''} onClick={() => setEcran('clients')}>Clients</button>
-          <button className={ecran === 'listes' ? 'actif' : ''} onClick={() => setEcran('listes')}>Listes scolaires</button>
-          <button className={ecran === 'rapports' ? 'actif' : ''} onClick={() => setEcran('rapports')}>Rapports</button>
-          <button className={ecran === 'sauvegarde' ? 'actif' : ''} onClick={() => setEcran('sauvegarde')}>Sauvegarde</button>
-          <button className={ecran === 'parametres' ? 'actif' : ''} onClick={() => setEcran('parametres')}>Paramètres</button>
-        </nav>
-      </header>
-      <main className="page">
+      <Navigation nomBoutique={boutique.nom} ecran={ecran} onChoisir={(e) => { setEcran(e); window.scrollTo(0, 0) }} />
+      <main className="page" key={ecran}>
         {ecran !== 'sauvegarde' && ecran !== 'rapports' && <RappelSauvegarde onOuvrir={() => setEcran('sauvegarde')} />}
         {ecran === 'tableau' && <TableauDeBord onVoirCatalogue={() => setEcran('catalogue')} />}
         {ecran === 'vente' && <Vente />}

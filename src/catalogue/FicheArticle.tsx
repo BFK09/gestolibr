@@ -5,6 +5,7 @@ import type { Article } from '../db/types'
 import { fcfa, lireEntier } from '../outils/format'
 import { codeSuivant } from './codeSuivant'
 import ScanCamera from '../scan/ScanCamera'
+import { ScanBarcode } from 'lucide-react'
 
 interface Props {
   articleId: string // un id existant, ou 'nouveau'
@@ -175,7 +176,7 @@ export default function FicheArticle({ articleId, onFermer }: Props) {
               placeholder="Scanne ou tape le code sous les barres"
               inputMode="numeric"
             />
-            <button type="button" className="bouton-scan" onClick={() => setScan(true)} aria-label="Scanner avec la caméra">📷</button>
+            <button type="button" className="bouton-scan" onClick={() => setScan(true)} aria-label="Scanner avec la caméra"><ScanBarcode size={20} /></button>
           </span>
         </label>
         {scan && <ScanCamera onCode={(c) => { changer('codeBarre', c); setScan(false) }} onFermer={() => setScan(false)} />}

@@ -16,7 +16,8 @@ npm run build    # fabrique la version finale dans le dossier dist
 - `index.html` : la seule page HTML. React vient dessiner l'écran dans `<div id="root">`.
 - `vite.config.ts` : réglages de Vite, l'outil qui construit l'application. C'est ici qu'on la rend installable et hors ligne (PWA) : nom, couleurs, icônes.
 - `src/main.tsx` : le point de départ, qui branche React sur la page.
-- `src/App.tsx` : l'écran principal. Les futurs écrans (catalogue, vente...) partiront d'ici.
+- `src/App.tsx` : l'écran principal : la navigation, puis l'écran choisi.
+- `src/navigation/` : le menu. Sur téléphone, une barre en bas (Vente, Accueil, Catalogue, Clients, Plus) ; sur ordinateur, un menu à gauche. `ecrans.ts` liste les écrans, leurs icônes (bibliothèque lucide-react) et ceux du menu du bas.
 - `src/db/types.ts` : la forme de chaque table (article, vente, ligne de vente, encaissement, achat, mouvement de stock, inventaire, liste scolaire…).
 - `src/db/base.ts` : la base locale Dexie (version 5 du plan), ses 16 tables et les champs sur lesquels on cherche.
 - `src/db/depart.ts` : au tout premier lancement, lit le CSV et crée les catégories, les 111 articles et les 3 modes de paiement.
@@ -56,7 +57,7 @@ npm run build    # fabrique la version finale dans le dossier dist
 - `src/outils/texte.ts` : recherche sans tenir compte des accents.
 - `src/outils/format.ts` : affichage des montants en FCFA et lecture des nombres saisis.
 - `src/data/catalogue_depart.csv` : copie du catalogue de départ, incluse dans l'application pour marcher hors ligne.
-- `src/index.css` : les styles (couleurs, marges).
+- `src/index.css` : les styles. Les couleurs sont en haut (`--bleu`, `--fond`…) : on les change à un seul endroit.
 - `public/` : les icônes de l'application.
 - `tsconfig*.json`, `eslint.config.js`, `src/vite-env.d.ts` : réglages de TypeScript et du vérificateur de code. On n'y touche presque jamais.
 - `.gitignore` : les dossiers que Git ne doit pas sauvegarder (`node_modules`, `dist`).

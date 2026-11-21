@@ -21,6 +21,8 @@ export interface NouvelleVente {
 // Enregistre une vente en un seul bloc (transaction) et renvoie l'id du ticket.
 export async function enregistrerVente(v: NouvelleVente): Promise<string> {
   if (v.lignes.length === 0) throw new Error('Le panier est vide.')
+  if (v.lignes.some((l) => !Number.isInteger(l.quantite) || l.quantite <= 0)) throw new Error('Chaque quantité doit être un nombre entier supérieur à 0.')
+  if (v.paiements.some((p) => !Number.isInteger(p.montant) || p.montant < 0)) throw new Error('Un montant de paiement ne peut pas être négatif.')
 
   return db.transaction(
     'rw',
@@ -173,6 +175,11 @@ export async function retournerArticles(
       total += r.quantite * l.prixUnitaire
       await db.lignesVente.add({ ...l, id: nouvelId(), venteId: retourId, quantite: -r.quantite })
       await db.mouvementsStock.add({ id: nouvelId(), date, articleId: r.articleId, quantite: r.quantite, type: 'retour', documentId: retourId })
+    }
+    // Déduire de la dette : seulement dans la limite de ce que le client doit encore.
+    if (mode.nature === 'credit') {
+      const dette = await detteClient(vente.clientId!)
+      if (total > dette) throw new Error(`Le client ne doit que ${dette} FCFA : rembourse plutôt en espèces ou en mobile money.`)
     }
     await db.ventes.add({ id: retourId, numero: (dernier?.numero ?? 0) + 1, date, clientId: vente.clientId, total: -total, retourVenteId: venteId })
     await db.encaissements.add({ id: nouvelId(), date, type: 'rendu', modePaiementId, montant: -total, venteId: retourId, clientId: vente.clientId })

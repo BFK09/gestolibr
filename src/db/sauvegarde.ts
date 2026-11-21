@@ -75,5 +75,16 @@ export async function restaurerBase(donnees: FichierSauvegarde) {
       const lignes = donnees.tables[table.name]
       if (lignes?.length) await table.bulkAdd(lignes)
     }
+    // Une sauvegarde faite avec une ancienne version peut manquer de champs ajoutés depuis :
+    // on les complète comme le fait la mise à jour de la base.
+    const modes = await db.modesPaiement.toArray()
+    for (const [i, m] of modes.entries()) {
+      const n = String(m.nom).toLowerCase()
+      await db.modesPaiement.update(m.id, {
+        nature: m.nature ?? (n.startsWith('esp') ? 'especes' : n.includes('mobile') ? 'mobile_money' : n.startsWith('cr') ? 'credit' : 'autre'),
+        ordre: m.ordre ?? i + 1,
+        actif: m.actif ?? true,
+      })
+    }
   })
 }

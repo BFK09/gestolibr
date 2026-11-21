@@ -8,6 +8,7 @@ import { fcfa, lireEntier } from '../outils/format'
 import { sansAccents } from '../outils/texte'
 import { articleScanne, texteRecherche } from '../outils/codeBarre'
 import ScanCamera from '../scan/ScanCamera'
+import { ScanBarcode } from 'lucide-react'
 import Ticket from './Ticket'
 
 export interface LignePanier { article: Article; quantite: number }
@@ -138,7 +139,7 @@ export default function Caisse({ panierDepart, onRefaire }: Props) {
         Ajouter un article
         <span className="avec-scan">
           <input type="search" value={recherche} onChange={(e) => { setRecherche(e.target.value); setErreurScan('') }} placeholder="Tape ou scanne un code, ou un nom…" autoFocus onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); const a = articleScanne(articles!, recherche, suggestions); if (a) ajouter(a); else if (recherche.trim()) setErreurScan(`Aucun article ne correspond à « ${recherche.trim()} ».`) } }} />
-          <button type="button" className="bouton-scan" onClick={() => setScan(true)} aria-label="Scanner avec la caméra">📷</button>
+          <button type="button" className="bouton-scan" onClick={() => setScan(true)} aria-label="Scanner avec la caméra"><ScanBarcode size={20} /></button>
         </span>
         {erreurScan && <small className="alerte">{erreurScan}</small>}
         {scan && (
