@@ -1,4 +1,6 @@
-# Application Librairie (étape 8 : tableau de bord et rapports)
+# Application Librairie GESTOLIBR
+
+En ligne : https://bfk09.github.io/gestolibr/ (publiée automatiquement à chaque envoi sur GitHub).
 
 ## Lancer l'application sur ce PC
 Il faut Node.js (version 20 ou plus). Dans PowerShell, depuis ce dossier `app` :
@@ -16,7 +18,7 @@ npm run build    # fabrique la version finale dans le dossier dist
 - `src/main.tsx` : le point de départ, qui branche React sur la page.
 - `src/App.tsx` : l'écran principal. Les futurs écrans (catalogue, vente...) partiront d'ici.
 - `src/db/types.ts` : la forme de chaque table (article, vente, ligne de vente, encaissement, achat, mouvement de stock, inventaire, liste scolaire…).
-- `src/db/base.ts` : la base locale Dexie, ses 15 tables et les champs sur lesquels on cherche.
+- `src/db/base.ts` : la base locale Dexie (version 5 du plan), ses 16 tables et les champs sur lesquels on cherche.
 - `src/db/depart.ts` : au tout premier lancement, lit le CSV et crée les catégories, les 111 articles et les 3 modes de paiement.
 - `src/db/stock.ts` : calcule le stock de chaque article en additionnant le journal des mouvements.
 - `src/catalogue/Catalogue.tsx` : l'écran Catalogue (liste, recherche, filtres par catégorie, sans prix, inactifs).
@@ -42,6 +44,15 @@ npm run build    # fabrique la version finale dans le dossier dist
 - `src/tableau/TableauDeBord.tsx` : l'écran Tableau de bord.
 - `src/db/rapports.ts` : prépare le journal des mouvements (avec le document d'origine) et l'état du stock.
 - `src/rapports/` : l'écran Rapports (mouvements par période, état du stock, feuille de comptage), imprimable en PDF ; `periodes.ts` calcule les dates des périodes.
+- `src/db/clients.ts`, `src/clients/` : crédits clients (dette = achats à crédit − remboursements), remboursement avec reçu imprimable, historique du compte, plafond de crédit.
+- `src/parametres/` : l'écran Paramètres (identité de la librairie, catégories, fournisseurs, modes de paiement, réinitialisation avec sauvegarde automatique avant d'effacer).
+- Retours partiels : `retournerArticles` dans `src/db/vente.ts` (bouton « Retour d'articles… » sur le ticket) ; rembourse en espèces ou déduit de la dette.
+- `src/stock/Pertes.tsx` et `enregistrerPerte` (`src/db/vente.ts`) : pertes et casse, avec un motif.
+- `src/db/listes.ts`, `src/listes/` : listes scolaires par école, classe et année ; copier une liste pour une autre classe ou l'année suivante ; à la caisse, « Ajouter une liste scolaire » remplit le panier.
+- `src/scan/ScanCamera.tsx` : lit un code-barres avec la caméra (lecteur intégré au téléphone sur Android, sinon la bibliothèque ZXing).
+- `src/outils/codeBarre.ts` : retrouve l'article quand une douchette tape un code-barres puis Entrée.
+- `src/rapports/RapportVentes.tsx` (+ `rapportVentes` dans `src/db/rapports.ts`) : rapport des ventes par article, catégorie, jour ou ligne par ligne, avec coût et marge.
+- `src/outils/excel.ts` : fabrique un vrai fichier Excel (.xlsx) dans le navigateur, sans serveur.
 - `src/outils/texte.ts` : recherche sans tenir compte des accents.
 - `src/outils/format.ts` : affichage des montants en FCFA et lecture des nombres saisis.
 - `src/data/catalogue_depart.csv` : copie du catalogue de départ, incluse dans l'application pour marcher hors ligne.
@@ -49,3 +60,15 @@ npm run build    # fabrique la version finale dans le dossier dist
 - `public/` : les icônes de l'application.
 - `tsconfig*.json`, `eslint.config.js`, `src/vite-env.d.ts` : réglages de TypeScript et du vérificateur de code. On n'y touche presque jamais.
 - `.gitignore` : les dossiers que Git ne doit pas sauvegarder (`node_modules`, `dist`).
+
+## Bon à savoir
+- Les données restent dans le navigateur de l'appareil. **Faire une sauvegarde régulièrement** (écran Sauvegarde) et la garder ailleurs (WhatsApp, Drive, clé USB).
+- Rien n'est jamais effacé de l'historique : une annulation crée un contre-ticket, un retour crée un ticket de retour, un inventaire enregistre un écart.
+
+## Avoir une application Android (APK)
+La version la plus simple, sans rien installer : **PWABuilder** fabrique l'APK à partir du site en ligne.
+1. Ouvrir https://www.pwabuilder.com et coller l'adresse https://bfk09.github.io/gestolibr/
+2. Cliquer sur « Package for stores », puis « Android » et « Download test package ».
+3. Envoyer le fichier .apk sur le téléphone et l'ouvrir (autoriser l'installation depuis cette source).
+L'APK affiche le site dans Chrome : tout marche comme sur le site (PDF, Excel, sauvegarde, scan) et les mises à jour arrivent seules.
+Attention : les données de l'APK et celles du site dans Chrome ne sont pas forcément les mêmes ; pour passer de l'un à l'autre, utiliser Sauvegarde puis Restaurer.

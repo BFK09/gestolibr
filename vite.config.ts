@@ -21,9 +21,12 @@ export default defineConfig({
         short_name: 'Librairie',
         description: 'Gestion de la librairie-papeterie : catalogue, stock, ventes.',
         lang: 'fr',
+        id: base,
         start_url: base,
         scope: base,
         display: 'standalone',
+        orientation: 'any',
+        categories: ['business', 'productivity'],
         background_color: '#ffffff',
         theme_color: '#1f5f8b',
         icons: [
