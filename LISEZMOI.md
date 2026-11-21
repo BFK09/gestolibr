@@ -1,4 +1,4 @@
-# Application Librairie (étape 8 : tableau de bord)
+# Application Librairie (étape 8 : tableau de bord et rapports)
 
 ## Lancer l'application sur ce PC
 Il faut Node.js (version 20 ou plus). Dans PowerShell, depuis ce dossier `app` :
@@ -40,6 +40,8 @@ npm run build    # fabrique la version finale dans le dossier dist
 - `src/sauvegarde/RappelSauvegarde.tsx` : le bandeau qui rappelle de sauvegarder après 7 jours.
 - `src/db/statistiques.ts` : les calculs du tableau de bord (chiffre d'affaires net, marge, tickets, panier moyen, meilleurs produits, alertes de stock, valeur du stock).
 - `src/tableau/TableauDeBord.tsx` : l'écran Tableau de bord.
+- `src/db/rapports.ts` : prépare le journal des mouvements (avec le document d'origine) et l'état du stock.
+- `src/rapports/` : l'écran Rapports (mouvements par période, état du stock, feuille de comptage), imprimable en PDF ; `periodes.ts` calcule les dates des périodes.
 - `src/outils/texte.ts` : recherche sans tenir compte des accents.
 - `src/outils/format.ts` : affichage des montants en FCFA et lecture des nombres saisis.
 - `src/data/catalogue_depart.csv` : copie du catalogue de départ, incluse dans l'application pour marcher hors ligne.
