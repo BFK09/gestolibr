@@ -30,7 +30,9 @@ export default function Caisse({ panierDepart, onRefaire }: Props) {
   const modes = useLiveQuery(() => db.modesPaiement.filter((m) => m.actif).sortBy('ordre'), [])
   const clients = useLiveQuery(() => db.clients.orderBy('nom').toArray(), [])
   const stocks = useLiveQuery(() => stockParArticle(), [])
-  if (!articles || !modes || !clients || !stocks) return <p>Chargement…</p>
+  const listes = useLiveQuery(async () => (await db.listesScolaires.toArray())
+    .sort((a, b) => b.annee.localeCompare(a.annee) || a.ecole.localeCompare(b.ecole) || a.classe.localeCompare(b.classe, 'fr', { numeric: true })), [])
+  if (!articles || !modes || !clients || !stocks || !listes) return <p>Chargement…</p>
 
   // Après une vente : on affiche le ticket, puis on repart sur un panier vide.
   if (ticketId) return <Ticket venteId={ticketId} onNouvelleVente={() => setTicketId(null)} onRefaire={onRefaire} />
@@ -64,6 +66,23 @@ export default function Caisse({ panierDepart, onRefaire }: Props) {
     if (i >= 0) changerQuantite(i, panier[i].quantite + 1)
     else setPanier([...panier, { article: a, quantite: 1 }])
     setRecherche('')
+  }
+
+  // Ajoute tous les articles d'une liste scolaire au panier (on peut ensuite enlever ce que l'élève a déjà).
+  async function ajouterListe(listeId: string) {
+    if (!listeId) return
+    const ls = await db.lignesListeScolaire.where('listeId').equals(listeId).toArray()
+    const copie = [...panier]
+    const ignores: string[] = []
+    for (const l of ls) {
+      const a = articles!.find((x) => x.id === l.articleId)
+      if (!a || a.prixVente === null) { ignores.push(a?.designation ?? 'article supprimé'); continue }
+      const i = copie.findIndex((x) => x.article.id === a.id)
+      if (i >= 0) copie[i] = { ...copie[i], quantite: copie[i].quantite + l.quantite }
+      else copie.push({ article: a, quantite: l.quantite })
+    }
+    setPanier(copie)
+    setErreur(ignores.length ? `Non ajoutés (inactifs ou sans prix) : ${ignores.join(', ')}.` : '')
   }
 
   function changerQuantite(i: number, q: number) {
@@ -127,6 +146,13 @@ export default function Caisse({ panierDepart, onRefaire }: Props) {
           </ul>
         )}
       </label>
+
+      {listes.length > 0 && (
+        <select className="choix-liste" value="" onChange={(e) => ajouterListe(e.target.value)}>
+          <option value="">📋 Ajouter une liste scolaire…</option>
+          {listes.map((l) => <option key={l.id} value={l.id}>{l.ecole} – {l.classe} ({l.annee})</option>)}
+        </select>
+      )}
 
       {panierDepart.length > 0 && panier === panierDepart && (
         <p className="succes">Ticket annulé. Ses articles sont remis dans le panier : corrige-les puis valide la nouvelle vente.</p>
