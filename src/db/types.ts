@@ -1,0 +1,143 @@
+// Les "types" décrivent la forme de chaque élément enregistré.
+// TypeScript s'en sert pour signaler une faute (champ oublié, mauvais type).
+// Tous les montants sont en FCFA, en nombres entiers.
+
+// L'identité de la librairie, saisie dans l'assistant de démarrage (un seul enregistrement).
+export interface Boutique {
+  id: 'principale'
+  nom: string
+  responsable: string
+  telephone?: string
+  adresse?: string
+  configureeLe: string // date de fin de la configuration
+  derniereSauvegarde?: string // date du dernier fichier de sauvegarde téléchargé
+}
+
+export interface Categorie {
+  id: string
+  nom: string
+}
+
+export interface Fournisseur {
+  id: string
+  nom: string
+  telephone?: string
+}
+
+export interface Article {
+  id: string
+  code: string // ex. CAH-001
+  designation: string
+  categorieId: string
+  fournisseurId?: string
+  unite: string // pièce, paquet, service…
+  prixVente: number | null // vide tant qu'il n'est pas saisi
+  seuilAlerte: number | null
+  coutMoyen: number | null // coût moyen pondéré, recalculé à chaque achat
+  actif: boolean
+}
+
+export interface ModePaiement {
+  id: string
+  nom: string // Espèces, Mobile money, Crédit
+  ordre: number // ordre d'affichage dans la caisse
+  actif: boolean
+}
+
+export interface Client {
+  id: string
+  nom: string
+  type: 'particulier' | 'ecole' | 'entreprise'
+  telephone?: string
+  plafondCredit: number
+}
+
+// Un ticket de vente. Ses articles sont dans LigneVente.
+export interface Vente {
+  id: string
+  numero: number
+  date: string // date et heure au format ISO
+  clientId?: string
+  total: number
+  // Une vente n'est jamais modifiée ni supprimée. Pour l'annuler, on crée un
+  // contre-ticket (montants et quantités négatifs) qui pointe vers elle.
+  annuleVenteId?: string // rempli seulement sur un contre-ticket
+}
+
+// Valeurs figées : prix, coût et catégorie sont copiés au moment de la vente.
+export interface LigneVente {
+  id: string
+  venteId: string
+  articleId: string
+  designation: string
+  categorieId: string
+  quantite: number
+  prixUnitaire: number
+  coutUnitaire: number
+}
+
+// Argent reçu ou rendu. Un ticket peut avoir plusieurs encaissements (paiement partagé).
+export interface Encaissement {
+  id: string
+  date: string
+  type: 'paiement' | 'remboursement_credit' | 'rendu'
+  modePaiementId: string
+  montant: number
+  venteId?: string
+  clientId?: string
+}
+
+export interface Achat {
+  id: string
+  date: string
+  fournisseurId?: string
+  reference?: string // numéro du bon de livraison ou de la facture
+  total: number
+}
+
+export interface LigneAchat {
+  id: string
+  achatId: string
+  articleId: string
+  quantite: number
+  coutUnitaire: number
+}
+
+// Le stock est un journal : chaque entrée (+) ou sortie (-) est une ligne.
+// Le stock d'un article = la somme de ses quantités.
+export interface MouvementStock {
+  id: string
+  date: string
+  articleId: string
+  quantite: number
+  type: 'vente' | 'achat' | 'retour' | 'perte' | 'ajustement' | 'inventaire'
+  documentId?: string // la vente, l'achat ou l'inventaire d'origine
+}
+
+export interface Inventaire {
+  id: string
+  date: string
+  note?: string
+}
+
+export interface LigneInventaire {
+  id: string
+  inventaireId: string
+  articleId: string
+  quantiteTheorique: number
+  quantiteComptee: number
+}
+
+export interface ListeScolaire {
+  id: string
+  ecole: string
+  classe: string
+  annee: string // ex. 2026-2027
+}
+
+export interface LigneListeScolaire {
+  id: string
+  listeId: string
+  articleId: string
+  quantite: number
+}

@@ -1,0 +1,112 @@
+﻿code;designation;categorie;unite
+CAH-001;Cahier 48 pages petit format;Cahiers et papier;pièce
+CAH-002;Cahier 96 pages petit format;Cahiers et papier;pièce
+CAH-003;Cahier 96 pages grand format;Cahiers et papier;pièce
+CAH-004;Cahier 144 pages grand format;Cahiers et papier;pièce
+CAH-005;Cahier 192 pages grand format;Cahiers et papier;pièce
+CAH-006;Cahier de travaux pratiques;Cahiers et papier;pièce
+CAH-007;Cahier de dessin;Cahiers et papier;pièce
+CAH-008;Cahier de musique;Cahiers et papier;pièce
+CAH-009;Cahier de textes;Cahiers et papier;pièce
+CAH-010;Répertoire;Cahiers et papier;pièce
+CAH-011;Bloc-notes;Cahiers et papier;pièce
+CAH-012;Bloc de feuilles quadrillées;Cahiers et papier;pièce
+CAH-013;Feuilles doubles (lot);Cahiers et papier;pièce
+CAH-014;Papier millimétré;Cahiers et papier;pièce
+CAH-015;Ramette papier A4 80 g;Cahiers et papier;pièce
+CAH-016;Papier couleur A4;Cahiers et papier;pièce
+CAH-017;Papier calque;Cahiers et papier;pièce
+CAH-018;Papier kraft;Cahiers et papier;pièce
+ECR-001;Stylo bille bleu;Écriture;pièce
+ECR-002;Stylo bille noir;Écriture;pièce
+ECR-003;Stylo bille rouge;Écriture;pièce
+ECR-004;Stylo bille vert;Écriture;pièce
+ECR-005;Stylo à plume;Écriture;pièce
+ECR-006;Cartouches d'encre (boîte);Écriture;pièce
+ECR-007;Crayon HB;Écriture;pièce
+ECR-008;Crayon 2B;Écriture;pièce
+ECR-009;Porte-mine;Écriture;pièce
+ECR-010;Mines pour porte-mine;Écriture;pièce
+ECR-011;Surligneur jaune;Écriture;pièce
+ECR-012;Surligneur couleur;Écriture;pièce
+ECR-013;Marqueur permanent;Écriture;pièce
+ECR-014;Marqueur pour tableau blanc;Écriture;pièce
+ECR-015;Effaceur;Écriture;pièce
+ECR-016;Correcteur liquide;Écriture;pièce
+ECR-017;Ruban correcteur;Écriture;pièce
+ECR-018;Gomme;Écriture;pièce
+ECR-019;Taille-crayon;Écriture;pièce
+GEO-001;Règle 20 cm;Géométrie et mesure;pièce
+GEO-002;Règle 30 cm;Géométrie et mesure;pièce
+GEO-003;Équerre;Géométrie et mesure;pièce
+GEO-004;Rapporteur;Géométrie et mesure;pièce
+GEO-005;Compas;Géométrie et mesure;pièce
+GEO-006;Kit de géométrie;Géométrie et mesure;pièce
+GEO-007;Calculatrice scolaire;Géométrie et mesure;pièce
+GEO-008;Calculatrice scientifique;Géométrie et mesure;pièce
+ART-001;Crayons de couleur 12;Dessin et loisirs créatifs;pièce
+ART-002;Crayons de couleur 24;Dessin et loisirs créatifs;pièce
+ART-003;Feutres 12;Dessin et loisirs créatifs;pièce
+ART-004;Feutres 24;Dessin et loisirs créatifs;pièce
+ART-005;Gouache;Dessin et loisirs créatifs;pièce
+ART-006;Pinceau;Dessin et loisirs créatifs;pièce
+ART-007;Peinture;Dessin et loisirs créatifs;pièce
+ART-008;Pâte à modeler;Dessin et loisirs créatifs;pièce
+ART-009;Papier cartonné;Dessin et loisirs créatifs;pièce
+ART-010;Papier dessin;Dessin et loisirs créatifs;pièce
+ART-011;Ciseaux d'écolier;Dessin et loisirs créatifs;pièce
+ART-012;Colle en bâton;Dessin et loisirs créatifs;pièce
+ART-013;Colle liquide;Dessin et loisirs créatifs;pièce
+RAN-001;Chemise cartonnée;Rangement et classement;pièce
+RAN-002;Chemise à rabat;Rangement et classement;pièce
+RAN-003;Classeur;Rangement et classement;pièce
+RAN-004;Intercalaires;Rangement et classement;pièce
+RAN-005;Pochettes plastiques perforées;Rangement et classement;pièce
+RAN-006;Protège-cahier;Rangement et classement;pièce
+RAN-007;Protège-document;Rangement et classement;pièce
+RAN-008;Trieur;Rangement et classement;pièce
+RAN-009;Porte-vues;Rangement et classement;pièce
+RAN-010;Trousse;Rangement et classement;pièce
+RAN-011;Cartable;Rangement et classement;pièce
+RAN-012;Sac à dos;Rangement et classement;pièce
+RAN-013;Boîte à goûter;Rangement et classement;pièce
+RAN-014;Gourde;Rangement et classement;pièce
+BUR-001;Agrafeuse;Fournitures de bureau;pièce
+BUR-002;Agrafes (boîte);Fournitures de bureau;pièce
+BUR-003;Dégrafeur;Fournitures de bureau;pièce
+BUR-004;Perforatrice;Fournitures de bureau;pièce
+BUR-005;Scotch transparent;Fournitures de bureau;pièce
+BUR-006;Scotch d'emballage;Fournitures de bureau;pièce
+BUR-007;Dévidoir de scotch;Fournitures de bureau;pièce
+BUR-008;Trombones (boîte);Fournitures de bureau;pièce
+BUR-009;Pinces à dossier;Fournitures de bureau;pièce
+BUR-010;Punaises (boîte);Fournitures de bureau;pièce
+BUR-011;Élastiques (sachet);Fournitures de bureau;pièce
+BUR-012;Ciseaux de bureau;Fournitures de bureau;pièce
+BUR-013;Enveloppes (paquet);Fournitures de bureau;pièce
+BUR-014;Étiquettes adhésives (paquet);Fournitures de bureau;pièce
+BUR-015;Registre;Fournitures de bureau;pièce
+BUR-016;Carnet à souches;Fournitures de bureau;pièce
+BUR-017;Cahier de caisse;Fournitures de bureau;pièce
+BUR-018;Tampon;Fournitures de bureau;pièce
+BUR-019;Encre pour tampon;Fournitures de bureau;pièce
+BUR-020;Piles;Fournitures de bureau;pièce
+LIV-001;Dictionnaire de français;Livres;pièce
+LIV-002;Dictionnaire d'anglais;Livres;pièce
+LIV-003;Dictionnaire bilingue;Livres;pièce
+LIV-004;Atlas;Livres;pièce
+LIV-005;Bescherelle conjugaison;Livres;pièce
+LIV-006;Bescherelle grammaire;Livres;pièce
+LIV-007;Livre jeunesse;Livres;pièce
+LIV-008;Album pour enfants;Livres;pièce
+LIV-009;Cahier d'activités;Livres;pièce
+LIV-010;Cahier de vacances;Livres;pièce
+LIV-011;Annales BEPC;Livres;pièce
+LIV-012;Annales BAC;Livres;pièce
+LIV-013;Livre religieux;Livres;pièce
+SRV-001;Photocopie noir et blanc;Services;service
+SRV-002;Photocopie couleur;Services;service
+SRV-003;Impression;Services;service
+SRV-004;Reliure;Services;service
+SRV-005;Plastification;Services;service
+SRV-006;Recharge téléphone;Services;service
