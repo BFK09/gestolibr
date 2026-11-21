@@ -25,7 +25,7 @@ export async function resumePeriode(debut: string, fin: string): Promise<Resume>
   const chiffreAffaires = ventes.reduce((s, v) => s + v.total, 0)
   const marge = lignes.reduce((s, l) => s + l.quantite * (l.prixUnitaire - l.coutUnitaire), 0)
   const annulees = new Set(ventes.map((v) => v.annuleVenteId).filter(Boolean))
-  const tickets = ventes.filter((v) => !v.annuleVenteId && !annulees.has(v.id)).length
+  const tickets = ventes.filter((v) => !v.annuleVenteId && !v.retourVenteId && !annulees.has(v.id)).length
 
   const parArticle = new Map<string, { designation: string; quantite: number; montant: number }>()
   for (const l of lignes) {

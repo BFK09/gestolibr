@@ -206,6 +206,10 @@ details summary { cursor: pointer; color: var(--bleu); font-size: 0.85rem; }
 .liste-modes .boutons-mode button { padding: 6px 10px; }
 .liste-modes li.inactif { opacity: 0.55; }
 .zone-danger { border-color: #f1b5ae; }
+input.petit { width: 90px; }
+.article-choisi { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin: 0; }
+.article-choisi small { display: block; color: var(--doux); }
+.carte .recherche-article { display: flex; flex-direction: column; gap: 4px; font-size: 0.9rem; color: var(--doux); }
 @media print {
   body { background: #fff; }
   .barre, .onglets, .entete-ecran, .sans-impression, .page > section > div > button, .rappel { display: none !important; }

@@ -100,8 +100,12 @@ export async function annulerVente(venteId: string): Promise<string> {
       const vente = await db.ventes.get(venteId)
       if (!vente) throw new Error('Ticket introuvable.')
       if (vente.annuleVenteId) throw new Error("Un ticket d'annulation ne peut pas être annulé.")
+      if (vente.retourVenteId) throw new Error("Un ticket de retour ne peut pas être annulé.")
       const deja = await db.ventes.where('annuleVenteId').equals(venteId).first()
       if (deja) throw new Error(`Ce ticket est déjà annulé (ticket n° ${deja.numero}).`)
+      if (await db.ventes.where('retourVenteId').equals(venteId).count()) {
+        throw new Error('Des articles de ce ticket ont déjà été retournés : utilise « Retour d\'articles » pour le reste.')
+      }
 
       const dernier = await db.ventes.orderBy('numero').last()
       const contreId = nouvelId()
@@ -124,4 +128,60 @@ export async function annulerVente(venteId: string): Promise<string> {
       return contreId
     },
   )
+}
+
+// Quantités déjà retournées pour chaque ligne d'un ticket (articleId → quantité).
+export async function quantitesRetournees(venteId: string): Promise<Map<string, number>> {
+  const retours = await db.ventes.where('retourVenteId').equals(venteId).toArray()
+  const lignes = await db.lignesVente.where('venteId').anyOf(retours.map((r) => r.id)).toArray()
+  const q = new Map<string, number>()
+  for (const l of lignes) q.set(l.articleId, (q.get(l.articleId) ?? 0) - l.quantite) // lignes négatives
+  return q
+}
+
+// Retour partiel : le client rapporte une partie des articles d'un ticket.
+// On crée un ticket de retour (quantités et montant négatifs, prix d'origine),
+// le stock revient, et l'argent est rendu par le mode choisi
+// (si c'est le mode « crédit », la dette du client diminue).
+export async function retournerArticles(
+  venteId: string,
+  retours: { articleId: string; quantite: number }[],
+  modePaiementId: string,
+): Promise<string> {
+  return db.transaction('rw', [db.ventes, db.lignesVente, db.mouvementsStock, db.encaissements, db.modesPaiement], async () => {
+    const vente = await db.ventes.get(venteId)
+    if (!vente || vente.annuleVenteId || vente.retourVenteId) throw new Error('Ce ticket ne peut pas recevoir de retour.')
+    if (await db.ventes.where('annuleVenteId').equals(venteId).count()) throw new Error('Ce ticket a déjà été annulé.')
+    const mode = await db.modesPaiement.get(modePaiementId)
+    if (!mode) throw new Error('Choisis comment rembourser le client.')
+    if (mode.nature === 'credit' && !vente.clientId) throw new Error('Pas de client sur ce ticket : impossible de déduire de sa dette.')
+
+    const lignes = await db.lignesVente.where('venteId').equals(venteId).toArray()
+    const deja = await quantitesRetournees(venteId)
+    const aRendre = retours.filter((r) => r.quantite > 0)
+    if (aRendre.length === 0) throw new Error('Indique au moins une quantité à retourner.')
+
+    const dernier = await db.ventes.orderBy('numero').last()
+    const retourId = nouvelId()
+    const date = new Date().toISOString()
+    let total = 0
+    for (const r of aRendre) {
+      const l = lignes.find((x) => x.articleId === r.articleId)
+      if (!l) throw new Error('Article absent du ticket.')
+      const max = l.quantite - (deja.get(r.articleId) ?? 0)
+      if (!Number.isInteger(r.quantite) || r.quantite > max) throw new Error(`${l.designation} : on ne peut retourner que ${max} au maximum.`)
+      total += r.quantite * l.prixUnitaire
+      await db.lignesVente.add({ ...l, id: nouvelId(), venteId: retourId, quantite: -r.quantite })
+      await db.mouvementsStock.add({ id: nouvelId(), date, articleId: r.articleId, quantite: r.quantite, type: 'retour', documentId: retourId })
+    }
+    await db.ventes.add({ id: retourId, numero: (dernier?.numero ?? 0) + 1, date, clientId: vente.clientId, total: -total, retourVenteId: venteId })
+    await db.encaissements.add({ id: nouvelId(), date, type: 'rendu', modePaiementId, montant: -total, venteId: retourId, clientId: vente.clientId })
+    return retourId
+  })
+}
+
+// Perte, casse, vol… : une sortie de stock avec un motif (sans argent).
+export async function enregistrerPerte(articleId: string, quantite: number, motif: string) {
+  if (!Number.isInteger(quantite) || quantite <= 0) throw new Error('La quantité doit être un nombre entier supérieur à 0.')
+  await db.mouvementsStock.add({ id: nouvelId(), date: new Date().toISOString(), articleId, quantite: -quantite, type: 'perte', motif })
 }

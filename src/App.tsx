@@ -5,7 +5,7 @@ import Configuration from './configuration/Configuration'
 import Catalogue from './catalogue/Catalogue'
 import Reception from './reception/Reception'
 import Vente from './vente/Vente'
-import Inventaire from './stock/Inventaire'
+import Stock from './stock/Stock'
 import Sauvegarde from './sauvegarde/Sauvegarde'
 import RappelSauvegarde from './sauvegarde/RappelSauvegarde'
 import TableauDeBord from './tableau/TableauDeBord'
@@ -34,7 +34,7 @@ function App() {
           <button className={ecran === 'vente' ? 'actif' : ''} onClick={() => setEcran('vente')}>Vente</button>
           <button className={ecran === 'catalogue' ? 'actif' : ''} onClick={() => setEcran('catalogue')}>Catalogue</button>
           <button className={ecran === 'reception' ? 'actif' : ''} onClick={() => setEcran('reception')}>Réception</button>
-          <button className={ecran === 'inventaire' ? 'actif' : ''} onClick={() => setEcran('inventaire')}>Inventaire</button>
+          <button className={ecran === 'inventaire' ? 'actif' : ''} onClick={() => setEcran('inventaire')}>Stock</button>
           <button className={ecran === 'clients' ? 'actif' : ''} onClick={() => setEcran('clients')}>Clients</button>
           <button className={ecran === 'rapports' ? 'actif' : ''} onClick={() => setEcran('rapports')}>Rapports</button>
           <button className={ecran === 'sauvegarde' ? 'actif' : ''} onClick={() => setEcran('sauvegarde')}>Sauvegarde</button>
@@ -47,7 +47,7 @@ function App() {
         {ecran === 'vente' && <Vente />}
         {ecran === 'catalogue' && <Catalogue />}
         {ecran === 'reception' && <Reception />}
-        {ecran === 'inventaire' && <Inventaire />}
+        {ecran === 'inventaire' && <Stock />}
         {ecran === 'clients' && <Clients />}
         {ecran === 'rapports' && <Rapports />}
         {ecran === 'sauvegarde' && <Sauvegarde />}

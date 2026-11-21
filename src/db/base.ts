@@ -70,6 +70,9 @@ export class BaseLibrairie extends Dexie {
         })
       })
 
+    // Version 4 : retrouver les retours partiels d'un ticket.
+    this.version(4).stores({ ventes: 'id, &numero, date, clientId, annuleVenteId, retourVenteId' })
+
     // "populate" ne s'exécute qu'une fois : à la toute première ouverture.
     this.on('populate', () => chargerDonneesDeDepart(this))
   }

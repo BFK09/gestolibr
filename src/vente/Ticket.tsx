@@ -1,7 +1,8 @@
 import { useState } from 'react'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { db } from '../db/base'
-import { annulerVente } from '../db/vente'
+import { annulerVente, quantitesRetournees, retournerArticles } from '../db/vente'
+import { lireEntier } from '../outils/format'
 import { fcfa } from '../outils/format'
 import type { LignePanier } from './Caisse'
 
@@ -12,8 +13,12 @@ interface Props {
 }
 
 // Le ticket d'une vente, prêt à être imprimé, avec la possibilité de l'annuler.
-export default function Ticket({ venteId, onNouvelleVente, onRefaire }: Props) {
+export default function Ticket({ venteId: venteIdDepart, onNouvelleVente, onRefaire }: Props) {
+  // Le ticket affiché : au départ celui demandé, puis éventuellement le ticket de retour créé.
+  const [venteId, setVenteId] = useState(venteIdDepart)
   const [confirmer, setConfirmer] = useState(false)
+  const [retour, setRetour] = useState<Record<string, string> | null>(null) // articleId → quantité tapée
+  const [modeRetour, setModeRetour] = useState('')
   const [erreur, setErreur] = useState('')
   const d = useLiveQuery(async () => {
     const vente = await db.ventes.get(venteId)
@@ -24,12 +29,34 @@ export default function Ticket({ venteId, onNouvelleVente, onRefaire }: Props) {
     const client = vente?.clientId ? await db.clients.get(vente.clientId) : undefined
     // Liens entre un ticket et son annulation, dans les deux sens.
     const annulePar = await db.ventes.where('annuleVenteId').equals(venteId).first()
-    const original = vente?.annuleVenteId ? await db.ventes.get(vente.annuleVenteId) : undefined
-    return { vente, lignes, encaissements, modes, client, annulePar, original, boutique }
+    const original = vente?.annuleVenteId ? await db.ventes.get(vente.annuleVenteId) : vente?.retourVenteId ? await db.ventes.get(vente.retourVenteId) : undefined
+    const retours = await db.ventes.where('retourVenteId').equals(venteId).toArray()
+    const dejaRetourne = await quantitesRetournees(venteId)
+    const tousModes = await db.modesPaiement.toCollection().sortBy('ordre')
+    return { vente, lignes, encaissements, modes, client, annulePar, original, boutique, retours, dejaRetourne, tousModes }
   }, [venteId])
   if (!d?.vente) return <p>Chargement…</p>
-  const { vente, lignes, encaissements, modes, client, annulePar, original, boutique } = d
+  const { vente, lignes, encaissements, modes, client, annulePar, original, boutique, retours, dejaRetourne, tousModes } = d
   const estAnnulation = !!vente.annuleVenteId
+  const estRetour = !!vente.retourVenteId
+  const peutRetourner = !estAnnulation && !estRetour && !annulePar
+  // Modes proposés pour rembourser : tous ceux qui sont actifs ; le crédit seulement s'il y a un client.
+  const modesRetour = tousModes.filter((m) => m.actif && (m.nature !== 'credit' || !!vente.clientId))
+
+  async function validerRetour() {
+    setErreur('')
+    try {
+      const id = await retournerArticles(
+        venteId,
+        Object.entries(retour!).map(([articleId, q]) => ({ articleId, quantite: lireEntier(q) || 0 })),
+        modeRetour || modesRetour[0]?.id,
+      )
+      setRetour(null)
+      setVenteId(id)
+    } catch (e) {
+      setErreur((e as Error).message)
+    }
+  }
 
   async function annuler(puisRefaire: boolean) {
     setErreur('')
@@ -55,6 +82,7 @@ export default function Ticket({ venteId, onNouvelleVente, onRefaire }: Props) {
           {boutique?.telephone && <><br /><small>Tél. {boutique.telephone}</small></>}
         </p>
         {estAnnulation && <p className="ticket-annulation">ANNULATION du ticket n° {original?.numero}</p>}
+        {estRetour && <p className="ticket-annulation">RETOUR sur le ticket n° {original?.numero}</p>}
         <p>Ticket n° {vente.numero}<br />{new Date(vente.date).toLocaleString('fr-FR')}</p>
         {client && <p>Client : {client.nom}</p>}
         <table>
@@ -74,12 +102,40 @@ export default function Ticket({ venteId, onNouvelleVente, onRefaire }: Props) {
           </p>
         ))}
         {annulePar && <p className="ticket-annulation">ANNULÉ (ticket n° {annulePar.numero})</p>}
-        {!estAnnulation && <p className="ticket-merci">Merci de votre visite !</p>}
+        {retours.length > 0 && <p className="ticket-annulation">Retour(s) : ticket n° {retours.map((r) => r.numero).join(', ')}</p>}
+        {!estAnnulation && !estRetour && <p className="ticket-merci">Merci de votre visite !</p>}
       </div>
 
       {erreur && <p className="erreurs">{erreur}</p>}
 
-      {confirmer ? (
+      {retour ? (
+        <div className="confirmation sans-impression">
+          <p><strong>Retour d'articles</strong> : indique combien le client rapporte. Le stock revient et l'argent lui est rendu.</p>
+          <table className="tableau-simple">
+            <tbody>
+              {lignes.map((l) => {
+                const max = l.quantite - (dejaRetourne.get(l.articleId) ?? 0)
+                return (
+                  <tr key={l.id}>
+                    <td>{l.designation}<br /><small>acheté {l.quantite}{dejaRetourne.get(l.articleId) ? `, déjà rendu ${dejaRetourne.get(l.articleId)}` : ''}</small></td>
+                    <td><input className="petit" inputMode="numeric" disabled={max <= 0} placeholder={`0 à ${max}`}
+                      value={retour[l.articleId] ?? ''} onChange={(e) => setRetour({ ...retour, [l.articleId]: e.target.value })} /></td>
+                  </tr>
+                )
+              })}
+            </tbody>
+          </table>
+          <label className="recu">Rembourser en
+            <select value={modeRetour || modesRetour[0]?.id} onChange={(e) => setModeRetour(e.target.value)}>
+              {modesRetour.map((m) => <option key={m.id} value={m.id}>{m.nature === 'credit' ? 'Déduire de sa dette (crédit)' : m.nom}</option>)}
+            </select>
+          </label>
+          <div className="boutons">
+            <button onClick={() => setRetour(null)}>Fermer</button>
+            <button className="principal" onClick={validerRetour}>Valider le retour</button>
+          </div>
+        </div>
+      ) : confirmer ? (
         <div className="confirmation sans-impression">
           <p>
             Annuler le ticket n° {vente.numero} ({fcfa(vente.total)}) ? Les articles reviennent en stock
@@ -94,7 +150,8 @@ export default function Ticket({ venteId, onNouvelleVente, onRefaire }: Props) {
       ) : (
         <div className="boutons sans-impression">
           <button onClick={() => window.print()}>Imprimer</button>
-          {!estAnnulation && !annulePar && <button className="danger" onClick={() => setConfirmer(true)}>Annuler ce ticket…</button>}
+          {peutRetourner && <button onClick={() => { setErreur(''); setRetour({}) }}>Retour d'articles…</button>}
+          {peutRetourner && retours.length === 0 && <button className="danger" onClick={() => setConfirmer(true)}>Annuler ce ticket…</button>}
           {onNouvelleVente && <button className="principal" onClick={onNouvelleVente}>Nouvelle vente</button>}
         </div>
       )}

@@ -28,7 +28,7 @@ export default function VentesDuJour({ onRefaire }: { onRefaire: (lignes: LigneP
   const total = d.ventes.reduce((s, v) => s + v.total, 0)
   const annulees = new Set(d.ventes.map((v) => v.annuleVenteId).filter(Boolean))
   const numeros = new Map(d.ventes.map((v) => [v.id, v.numero]))
-  const nbTickets = d.ventes.filter((v) => !v.annuleVenteId && !annulees.has(v.id)).length
+  const nbTickets = d.ventes.filter((v) => !v.annuleVenteId && !v.retourVenteId && !annulees.has(v.id)).length
   return (
     <div className="caisse">
       <div className="resume-jour">
@@ -48,6 +48,7 @@ export default function VentesDuJour({ onRefaire }: { onRefaire: (lignes: LigneP
                 <span className="nom">
                   {new Date(v.date).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}
                   {v.annuleVenteId && <small>Annulation du n° {numeros.get(v.annuleVenteId) ?? '?'}</small>}
+                  {v.retourVenteId && <small>Retour sur le n° {numeros.get(v.retourVenteId) ?? '?'}</small>}
                   {annulees.has(v.id) && <small>Annulé</small>}
                 </span>
                 <span className="chiffres">{fcfa(v.total)}</span>

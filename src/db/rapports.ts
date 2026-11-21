@@ -17,7 +17,7 @@ export interface LigneMouvement {
 const NOMS_TYPES: Record<MouvementStock['type'], string> = {
   vente: 'Vente',
   achat: 'Réception',
-  retour: 'Annulation de vente',
+  retour: 'Retour / annulation',
   perte: 'Perte',
   ajustement: 'Ajustement',
   inventaire: 'Inventaire',
@@ -39,6 +39,7 @@ export async function journalMouvements(debut: string, fin: string): Promise<Lig
       const v = m.documentId ? ventes.get(m.documentId) : undefined
       if (!v) return nomType(m.type)
       if (v.annuleVenteId) return `Annulation du ticket n° ${ventes.get(v.annuleVenteId)?.numero ?? '?'} (ticket n° ${v.numero})`
+      if (v.retourVenteId) return `Retour sur le ticket n° ${ventes.get(v.retourVenteId)?.numero ?? '?'} (ticket n° ${v.numero})`
       return `Ticket n° ${v.numero}`
     }
     if (m.type === 'achat') {
@@ -50,6 +51,7 @@ export async function journalMouvements(debut: string, fin: string): Promise<Lig
       const i = m.documentId ? inventaires.get(m.documentId) : undefined
       return i?.note ?? 'Inventaire'
     }
+    if (m.type === 'perte') return m.motif ? `Perte : ${m.motif}` : 'Perte'
     return nomType(m.type)
   }
 

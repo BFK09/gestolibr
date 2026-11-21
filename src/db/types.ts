@@ -65,7 +65,8 @@ export interface Vente {
   total: number
   // Une vente n'est jamais modifiée ni supprimée. Pour l'annuler, on crée un
   // contre-ticket (montants et quantités négatifs) qui pointe vers elle.
-  annuleVenteId?: string // rempli seulement sur un contre-ticket
+  annuleVenteId?: string // rempli seulement sur un contre-ticket (annulation complète)
+  retourVenteId?: string // rempli seulement sur un ticket de retour (une partie des articles rapportés)
 }
 
 // Valeurs figées : prix, coût et catégorie sont copiés au moment de la vente.
@@ -119,6 +120,7 @@ export interface MouvementStock {
   quantite: number
   type: 'vente' | 'achat' | 'retour' | 'perte' | 'ajustement' | 'inventaire'
   documentId?: string // la vente, l'achat ou l'inventaire d'origine
+  motif?: string // pour une perte : casse, vol, abîmé…
 }
 
 export interface Inventaire {
