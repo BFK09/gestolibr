@@ -6,6 +6,7 @@ import { ouvrirWhatsApp } from '../outils/whatsapp'
 import { MessageCircle } from 'lucide-react'
 import type { Client, Encaissement } from '../db/types'
 import { fcfa, lireEntier } from '../outils/format'
+import { monnaie } from '../outils/pays'
 
 interface Props { clientId: string; onFermer: () => void }
 
@@ -141,7 +142,7 @@ export default function FicheClient({ clientId, onFermer }: Props) {
           </label>
           <label>Téléphone<input inputMode="tel" value={saisie.telephone} onChange={(e) => setSaisie({ ...saisie, telephone: e.target.value })} /></label>
         </div>
-        <label>Plafond de crédit (FCFA, vide = sans limite)<input inputMode="numeric" value={saisie.plafond} onChange={(e) => setSaisie({ ...saisie, plafond: e.target.value })} /></label>
+        <label>Plafond de crédit ({monnaie()}, vide = sans limite)<input inputMode="numeric" value={saisie.plafond} onChange={(e) => setSaisie({ ...saisie, plafond: e.target.value })} /></label>
         <label>Note<input value={saisie.note} onChange={(e) => setSaisie({ ...saisie, note: e.target.value })} placeholder="ex. paie en fin de mois" /></label>
         <div className="boutons gauche"><button className="principal" onClick={enregistrer}>Enregistrer</button></div>
       </div>

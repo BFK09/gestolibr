@@ -5,6 +5,7 @@ import { terminerConfiguration } from '../db/configuration'
 import { lireSauvegarde, restaurerBase } from '../db/sauvegarde'
 import { codeSuivant } from '../catalogue/codeSuivant'
 import { fcfa, lireEntier } from '../outils/format'
+import { definirPays, monnaie, PAYS } from '../outils/pays'
 import { sansAccents } from '../outils/texte'
 
 // Ce qui est tapé pour un produit coché (gardé en texte pendant la saisie).
@@ -14,7 +15,7 @@ interface Saisie { stock: string; prixAchat: string; prixVente: string }
 // 1. Identification  2. Choix des produits, stock et prix  3. Vérification et validation
 export default function Configuration() {
   const [etape, setEtape] = useState(1)
-  const [identite, setIdentite] = useState({ nom: '', responsable: '', telephone: '', adresse: '' })
+  const [identite, setIdentite] = useState({ nom: '', responsable: '', telephone: '', adresse: '', pays: 'CI' })
   const [choix, setChoix] = useState<Record<string, Saisie>>({}) // articleId → saisie
   const [recherche, setRecherche] = useState('')
   const [categorieId, setCategorieId] = useState('')
@@ -113,7 +114,7 @@ export default function Configuration() {
     setErreurs(pb)
     if (pb.length > 0) return
     await terminerConfiguration(
-      { nom: identite.nom.trim(), responsable: identite.responsable.trim(), telephone: identite.telephone.trim() || undefined, adresse: identite.adresse.trim() || undefined },
+      { nom: identite.nom.trim(), responsable: identite.responsable.trim(), telephone: identite.telephone.trim() || undefined, adresse: identite.adresse.trim() || undefined, pays: identite.pays },
       produits,
     )
     // L'application affiche alors automatiquement la caisse.
@@ -146,6 +147,11 @@ export default function Configuration() {
         <div className="carte">
           <label>Nom de la librairie *<input value={identite.nom} onChange={(e) => setIdentite({ ...identite, nom: e.target.value })} autoFocus /></label>
           <label>Responsable *<input value={identite.responsable} onChange={(e) => setIdentite({ ...identite, responsable: e.target.value })} /></label>
+          <label>Pays (indicatif téléphonique et monnaie)
+            <select value={identite.pays} onChange={(e) => { definirPays(e.target.value); setIdentite({ ...identite, pays: e.target.value }) }}>
+              {PAYS.map((p) => <option key={p.code} value={p.code}>{p.nom} (+{p.indicatif}, {p.monnaie})</option>)}
+            </select>
+          </label>
           <label>Téléphone<input inputMode="tel" value={identite.telephone} onChange={(e) => setIdentite({ ...identite, telephone: e.target.value })} /></label>
           <label>Adresse / ville<input value={identite.adresse} onChange={(e) => setIdentite({ ...identite, adresse: e.target.value })} /></label>
           {listeErreurs}
@@ -190,8 +196,8 @@ export default function Configuration() {
                   {s && (
                     <div className="champs-choix">
                       <label>Stock<input inputMode="numeric" value={s.stock} onChange={(e) => changer(a.id, 'stock', e.target.value)} /></label>
-                      <label>Prix d'achat<input inputMode="numeric" value={s.prixAchat} onChange={(e) => changer(a.id, 'prixAchat', e.target.value)} placeholder="FCFA" /></label>
-                      <label>Prix de vente<input inputMode="numeric" value={s.prixVente} onChange={(e) => changer(a.id, 'prixVente', e.target.value)} placeholder="FCFA" /></label>
+                      <label>Prix d'achat<input inputMode="numeric" value={s.prixAchat} onChange={(e) => changer(a.id, 'prixAchat', e.target.value)} placeholder={monnaie()} /></label>
+                      <label>Prix de vente<input inputMode="numeric" value={s.prixVente} onChange={(e) => changer(a.id, 'prixVente', e.target.value)} placeholder={monnaie()} /></label>
                     </div>
                   )}
                 </li>

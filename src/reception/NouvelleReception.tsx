@@ -4,6 +4,7 @@ import { db } from '../db/base'
 import type { Article } from '../db/types'
 import { enregistrerReception } from '../db/reception'
 import { fcfa, lireEntier } from '../outils/format'
+import { monnaie } from '../outils/pays'
 import { articleScanne, texteRecherche } from '../outils/codeBarre'
 import ScanCamera from '../scan/ScanCamera'
 import { ScanBarcode } from 'lucide-react'
@@ -148,7 +149,7 @@ export default function NouvelleReception() {
                 </div>
                 <div className="ligne-champs">
                   <label>Quantité<input inputMode="numeric" value={l.quantite} onChange={(e) => changer(i, 'quantite', e.target.value)} /></label>
-                  <label>Coût unitaire<input inputMode="numeric" value={l.cout} onChange={(e) => changer(i, 'cout', e.target.value)} placeholder="FCFA" /></label>
+                  <label>Coût unitaire<input inputMode="numeric" value={l.cout} onChange={(e) => changer(i, 'cout', e.target.value)} placeholder={monnaie()} /></label>
                   {l.article.prixVente === null ? (
                     <label>Prix de vente<input inputMode="numeric" value={l.prixVente} onChange={(e) => changer(i, 'prixVente', e.target.value)} placeholder="à saisir" /></label>
                   ) : (

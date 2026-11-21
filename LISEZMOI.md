@@ -54,7 +54,8 @@ npm run build    # fabrique la version finale dans le dossier dist
 - `src/outils/codeBarre.ts` : retrouve l'article quand une douchette tape un code-barres puis Entrée.
 - `src/rapports/RapportVentes.tsx` (+ `rapportVentes` dans `src/db/rapports.ts`) : rapport des ventes par article, catégorie, jour ou ligne par ligne, avec coût et marge.
 - `src/outils/excel.ts` : fabrique un vrai fichier Excel (.xlsx) dans le navigateur, sans serveur.
-- `src/outils/whatsapp.ts` : ouvre WhatsApp avec un message déjà écrit (ticket, rappel de crédit) ; un numéro à 10 chiffres reçoit l'indicatif +225.
+- `src/outils/pays.ts` : la liste des pays (indicatif téléphonique, monnaie). Le pays se choisit dans l'assistant de démarrage et dans Paramètres → Librairie ; la monnaie affichée peut être changée.
+- `src/outils/whatsapp.ts` : ouvre WhatsApp avec un message déjà écrit (ticket, rappel de crédit) ; un numéro tapé sans indicatif reçoit celui du pays de la librairie, un numéro avec + garde le sien.
 - Rappels de crédit : `debutDeLaDette` et `messageRelance` dans `src/db/clients.ts` ; filtre « À relancer » (plus de 30 jours) dans l'écran Clients, bouton « Rappel WhatsApp » dans la fiche du client.
 - `src/outils/affichage.ts` et `src/parametres/Affichage.tsx` : mode clair / sombre / automatique et taille du texte, propres à chaque appareil.
 - `src/outils/texte.ts` : recherche sans tenir compte des accents.

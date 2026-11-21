@@ -1,5 +1,6 @@
 import { db, nouvelId } from './base'
 import { detteClient } from './clients'
+import { fcfa } from '../outils/format'
 
 export interface LignePanier {
   articleId: string
@@ -60,7 +61,7 @@ export async function enregistrerVente(v: NouvelleVente): Promise<string> {
         if (aCredit && existant && existant.plafondCredit > 0) {
           const dette = await detteClient(existant.id)
           if (dette + montantCredit > existant.plafondCredit) {
-            throw new Error(`Plafond de crédit dépassé pour ${existant.nom} : il doit déjà ${dette} FCFA, plafond ${existant.plafondCredit} FCFA.`)
+            throw new Error(`Plafond de crédit dépassé pour ${existant.nom} : il doit déjà ${fcfa(dette)}, plafond ${fcfa(existant.plafondCredit)}.`)
           }
         }
       }
@@ -179,7 +180,7 @@ export async function retournerArticles(
     // Déduire de la dette : seulement dans la limite de ce que le client doit encore.
     if (mode.nature === 'credit') {
       const dette = await detteClient(vente.clientId!)
-      if (total > dette) throw new Error(`Le client ne doit que ${dette} FCFA : rembourse plutôt en espèces ou en mobile money.`)
+      if (total > dette) throw new Error(`Le client ne doit que ${fcfa(dette)} : rembourse plutôt en espèces ou en mobile money.`)
     }
     await db.ventes.add({ id: retourId, numero: (dernier?.numero ?? 0) + 1, date, clientId: vente.clientId, total: -total, retourVenteId: venteId })
     await db.encaissements.add({ id: nouvelId(), date, type: 'rendu', modePaiementId, montant: -total, venteId: retourId, clientId: vente.clientId })

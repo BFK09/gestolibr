@@ -3,6 +3,7 @@ import { useLiveQuery } from 'dexie-react-hooks'
 import { db, nouvelId } from '../db/base'
 import type { Article } from '../db/types'
 import { fcfa, lireEntier } from '../outils/format'
+import { monnaie } from '../outils/pays'
 import { codeSuivant } from './codeSuivant'
 import ScanCamera from '../scan/ScanCamera'
 import { ScanBarcode } from 'lucide-react'
@@ -97,7 +98,7 @@ export default function FicheArticle({ articleId, onFermer }: Props) {
     if (!s.designation.trim()) pb.push('La désignation est obligatoire.')
     if (!s.categorieId) pb.push('Choisis une catégorie.')
     if (!s.unite.trim()) pb.push("L'unité est obligatoire.")
-    if (Number.isNaN(prixVente)) pb.push('Le prix de vente doit être un nombre entier (en FCFA).')
+    if (Number.isNaN(prixVente)) pb.push(`Le prix de vente doit être un nombre entier (en ${monnaie()}).`)
     if (Number.isNaN(seuilAlerte)) pb.push("Le seuil d'alerte doit être un nombre entier.")
     const memeCode = code ? await db.articles.where('code').equals(code).first() : undefined
     if (memeCode && memeCode.id !== article?.id) pb.push(`Le code ${code} est déjà utilisé par « ${memeCode.designation} ».`)
@@ -183,7 +184,7 @@ export default function FicheArticle({ articleId, onFermer }: Props) {
 
         <div className="deux">
           <label>
-            Prix de vente (FCFA)
+            Prix de vente ({monnaie()})
             <input inputMode="numeric" value={saisie.prixVente} onChange={(e) => changer('prixVente', e.target.value)} placeholder="ex. 500" autoFocus={!estNouveau} />
           </label>
           <label>

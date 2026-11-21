@@ -1,5 +1,6 @@
 import { db, nouvelId } from './base'
 import type { Encaissement } from './types'
+import { fcfa } from '../outils/format'
 
 // La dette d'un client = tout ce qu'il a pris à crédit − tout ce qu'il a remboursé.
 // (Une annulation de ticket crée un « rendu » négatif en crédit : la dette baisse d'elle-même.)
@@ -35,7 +36,7 @@ export async function enregistrerRemboursement(clientId: string, montant: number
     const mode = await db.modesPaiement.get(modePaiementId)
     if (!mode || mode.nature === 'credit') throw new Error('Choisis comment le client paie (espèces, mobile money…).')
     const dette = await detteClient(clientId)
-    if (montant > dette) throw new Error(`Le client ne doit que ${dette} FCFA.`)
+    if (montant > dette) throw new Error(`Le client ne doit que ${fcfa(dette)}.`)
     const e: Encaissement = { id: nouvelId(), date: new Date().toISOString(), type: 'remboursement_credit', modePaiementId, montant, clientId }
     await db.encaissements.add(e)
     return e
@@ -102,7 +103,7 @@ export const joursDepuis = (iso: string) => Math.floor((Date.now() - new Date(is
 export const DELAI_RELANCE = 30
 
 export function messageRelance(nomClient: string, dette: number, nomBoutique: string, depuis: string | null) {
-  const montant = `${new Intl.NumberFormat('fr-FR').format(dette)} FCFA`
+  const montant = fcfa(dette)
   const quand = depuis ? ` depuis le ${new Date(depuis).toLocaleDateString('fr-FR')}` : ''
   return `Bonjour ${nomClient}, c'est ${nomBoutique}. Petit rappel amical : il reste ${montant} à régler sur votre compte${quand}. Vous pouvez passer à la librairie quand cela vous arrange. Merci et bonne journée !`
 }

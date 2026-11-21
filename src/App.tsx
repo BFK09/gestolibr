@@ -14,6 +14,7 @@ import Clients from './clients/Clients'
 import Parametres from './parametres/Parametres'
 import ListesScolaires from './listes/ListesScolaires'
 import Navigation from './navigation/Navigation'
+import { definirPays } from './outils/pays'
 import type { Ecran } from './navigation/ecrans'
 
 // Le composant principal : la navigation, puis l'écran choisi.
@@ -26,6 +27,8 @@ function App() {
   if (boutique === undefined) return null
   // Tant que la librairie n'est pas configurée, on affiche l'assistant de démarrage.
   if (boutique === null) return <Configuration />
+  // Le pays et la monnaie de la librairie, utilisés pour afficher les montants et les numéros WhatsApp.
+  definirPays(boutique.pays, boutique.monnaie)
 
   return (
     <>

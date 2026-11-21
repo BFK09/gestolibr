@@ -1,14 +1,22 @@
 // Envoi par WhatsApp : on ouvre WhatsApp avec un message déjà écrit ; la personne n'a plus qu'à appuyer sur Envoyer.
 // Rien ne part tout seul.
 
-// Numéro au format international sans « + » (ex. 0707070707 → 2250707070707).
-// Un numéro à 10 chiffres sans indicatif est considéré comme ivoirien (+225).
+import { PAYS, paysActuel } from './pays'
+
+// Numéro au format international sans « + » (ex. en Côte d'Ivoire 07 07 07 07 07 → 2250707070707).
+// Un numéro qui commence par + ou 00 garde son pays ; sinon on ajoute l'indicatif du pays de la librairie
+// (en enlevant le 0 du début, sauf dans les pays où il fait partie du numéro).
 export function numeroInternational(tel?: string): string | null {
   if (!tel) return null
   let n = tel.replace(/[^\d+]/g, '')
   if (n.startsWith('+')) n = n.slice(1)
   else if (n.startsWith('00')) n = n.slice(2)
-  else if (n.length === 10) n = '225' + n
+  else {
+    const p = paysActuel()
+    // Déjà écrit avec l'indicatif (ex. 2250707…) : on le garde tel quel.
+    const dejaIndicatif = PAYS.some((x) => n.startsWith(x.indicatif) && n.length > 10)
+    if (!dejaIndicatif) n = p.indicatif + (p.garderZero ? n : n.replace(/^0/, ''))
+  }
   return n.length >= 8 ? n : null
 }
 

@@ -3,7 +3,7 @@ import { db, nouvelId } from './base'
 export interface LigneReception {
   articleId: string
   quantite: number
-  coutUnitaire: number // prix d'achat d'une unité, en FCFA
+  coutUnitaire: number // prix d'achat d'une unité
   prixVente?: number // facultatif : seulement si l'article n'a pas encore de prix
 }
 

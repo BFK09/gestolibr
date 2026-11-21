@@ -1,6 +1,6 @@
 // Les "types" décrivent la forme de chaque élément enregistré.
 // TypeScript s'en sert pour signaler une faute (champ oublié, mauvais type).
-// Tous les montants sont en FCFA, en nombres entiers.
+// Tous les montants sont en nombres entiers, dans la monnaie de la librairie (FCFA par défaut).
 
 // L'identité de la librairie, saisie dans l'assistant de démarrage (un seul enregistrement).
 export interface Boutique {
@@ -9,6 +9,8 @@ export interface Boutique {
   responsable: string
   telephone?: string
   adresse?: string
+  pays?: string // code du pays (CI, SN, FR…) : indicatif téléphonique et monnaie
+  monnaie?: string // texte de la monnaie, si on veut autre chose que celle du pays
   configureeLe: string // date de fin de la configuration
   derniereSauvegarde?: string // date du dernier fichier de sauvegarde téléchargé
 }

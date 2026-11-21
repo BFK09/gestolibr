@@ -4,6 +4,7 @@ import { db } from '../db/base'
 import { stockParArticle } from '../db/stock'
 import { enregistrerInventaire } from '../db/inventaire'
 import { lireEntier } from '../outils/format'
+import { monnaie } from '../outils/pays'
 import { sansAccents } from '../outils/texte'
 import { texteRecherche } from '../outils/codeBarre'
 
@@ -79,7 +80,7 @@ export default function Inventaire() {
               <span className="champs-inventaire">
                 <label>Compté<input inputMode="numeric" value={comptes[a.id] ?? ''} onChange={(e) => setComptes({ ...comptes, [a.id]: e.target.value })} /></label>
                 {a.coutMoyen === null && (
-                  <label>Coût unit.<input inputMode="numeric" value={couts[a.id] ?? ''} onChange={(e) => setCouts({ ...couts, [a.id]: e.target.value })} placeholder="FCFA" /></label>
+                  <label>Coût unit.<input inputMode="numeric" value={couts[a.id] ?? ''} onChange={(e) => setCouts({ ...couts, [a.id]: e.target.value })} placeholder={monnaie()} /></label>
                 )}
               </span>
             </li>
