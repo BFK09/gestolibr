@@ -1,0 +1,35 @@
+# Fabrique l'APK Android et la met en téléchargement dans « Releases » du dépôt.
+# Se lance à la main (onglet Actions → « Fabriquer l'APK » → Run workflow).
+name: Fabriquer l'APK
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  apk:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm install --no-save @bubblewrap/core@1.24.1
+      - run: node apk/fabriquer-apk.mjs
+        env:
+          NUMERO_VERSION: ${{ github.run_number }}
+          MOT_DE_PASSE_CLE: ${{ github.run_id }}-gestolibr
+      - name: Mettre l'APK en téléchargement
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "apk-${{ github.run_number }}" apk/GESTOLIBR.apk \
+            --title "GESTOLIBR Android, version 1.0.${{ github.run_number }}" \
+            --notes "APK Android de GESTOLIBR. Il ouvre https://bfk09.github.io/gestolibr/ comme une application. À installer sur le téléphone (autoriser l'installation depuis cette source)." \
+            --latest
