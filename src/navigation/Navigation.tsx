@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react'
-import { Menu, Store, X } from 'lucide-react'
+import { Menu, X } from 'lucide-react'
+
+const LOGO = `${import.meta.env.BASE_URL}icone.svg`
 import { ECRANS, infoEcran, PRINCIPAUX, type Ecran } from './ecrans'
 
 interface Props {
@@ -28,7 +30,7 @@ export default function Navigation({ nomBoutique, ecran, onChoisir }: Props) {
   return (
     <>
       <header className="barre">
-        <span className="logo"><Store size={20} strokeWidth={2.2} /></span>
+        <img className="logo" src={LOGO} alt="" />
         <div className="barre-titres">
           <strong>{nomBoutique}</strong>
           <small>{actuel.nom}</small>
@@ -37,7 +39,7 @@ export default function Navigation({ nomBoutique, ecran, onChoisir }: Props) {
 
       {/* Ordinateur : menu à gauche */}
       <nav className="menu-cote" aria-label="Menu principal">
-        <div className="menu-cote-tete"><span className="logo"><Store size={20} strokeWidth={2.2} /></span><strong>{nomBoutique}</strong></div>
+        <div className="menu-cote-tete"><img className="logo" src={LOGO} alt="" /><strong>{nomBoutique}</strong></div>
         {ECRANS.map((e) => (
           <button key={e.id} className={ecran === e.id ? 'actif' : ''} aria-current={ecran === e.id ? 'page' : undefined} onClick={() => choisir(e.id)}>
             <e.icone size={20} strokeWidth={ecran === e.id ? 2.4 : 1.9} />

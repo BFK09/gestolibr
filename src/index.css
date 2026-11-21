@@ -40,7 +40,7 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .barre-titres { display: flex; flex-direction: column; line-height: 1.15; min-width: 0; }
 .barre-titres strong { font-size: 1rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .barre-titres small { font-size: 0.78rem; opacity: 0.8; }
-.logo { display: inline-grid; place-items: center; width: 34px; height: 34px; border-radius: 10px; background: rgba(255, 255, 255, 0.16); flex: none; }
+.logo { display: block; width: 34px; height: 34px; border-radius: 9px; flex: none; box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.25); }
 
 /* ---------- Menu du bas (téléphone) ---------- */
 .menu-bas { position: fixed; left: 0; right: 0; bottom: 0; z-index: 30; display: grid; grid-template-columns: repeat(5, 1fr); background: color-mix(in srgb, var(--carte) 94%, transparent); backdrop-filter: blur(12px); border-top: 1px solid var(--bord); padding: 6px 4px calc(6px + env(safe-area-inset-bottom)); }
@@ -71,7 +71,6 @@ button, input, select, textarea { font: inherit; color: inherit; }
   .barre, .menu-bas, .voile { display: none; }
   .menu-cote { display: flex; flex-direction: column; gap: 2px; position: fixed; top: 0; bottom: 0; left: 0; width: 232px; padding: 16px 12px; background: var(--carte); border-right: 1px solid var(--bord); overflow-y: auto; z-index: 20; }
   .menu-cote-tete { display: flex; align-items: center; gap: 10px; padding: 4px 8px 16px; color: var(--bleu); }
-  .menu-cote-tete .logo { background: var(--bleu); color: #fff; }
   .menu-cote button { display: flex; align-items: center; gap: 12px; width: 100%; text-align: left; border: none; background: none; padding: 10px 12px; border-radius: 10px; color: var(--doux); font-weight: 500; }
   .menu-cote button:hover { background: var(--ligne); color: var(--texte); }
   .menu-cote button.actif { background: var(--bleu-pale); color: var(--bleu); font-weight: 700; }
@@ -377,7 +376,6 @@ button svg { vertical-align: -4px; }
 .alerte, .erreurs, .ticket-annulation, button.danger, .table-rapport .sortie, .relance.urgente { color: var(--rouge) !important; }
 .positif, .succes, .monnaie, .table-rapport .entree { color: var(--vert); }
 .barre { background: #1f5f8b; }
-.menu-cote-tete .logo { background: #1f5f8b; }
 @media print { :root { --fond: #fff; --carte: #fff; --texte: #000; --doux: #444; } }
 /* Taille du texte (Paramètres → Affichage) */
 :root[data-texte='grand'] { font-size: 112.5%; }
