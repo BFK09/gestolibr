@@ -9,8 +9,9 @@ import Inventaire from './stock/Inventaire'
 import Sauvegarde from './sauvegarde/Sauvegarde'
 import RappelSauvegarde from './sauvegarde/RappelSauvegarde'
 import TableauDeBord from './tableau/TableauDeBord'
+import Rapports from './rapports/Rapports'
 
-type Ecran = 'tableau' | 'vente' | 'catalogue' | 'reception' | 'inventaire' | 'sauvegarde'
+type Ecran = 'tableau' | 'vente' | 'catalogue' | 'reception' | 'inventaire' | 'rapports' | 'sauvegarde'
 
 // Le composant principal : la barre du haut, puis l'écran choisi.
 // Les autres écrans (Sauvegarde, Tableau de bord…) s'ajouteront ici au fil des étapes.
@@ -32,16 +33,18 @@ function App() {
           <button className={ecran === 'catalogue' ? 'actif' : ''} onClick={() => setEcran('catalogue')}>Catalogue</button>
           <button className={ecran === 'reception' ? 'actif' : ''} onClick={() => setEcran('reception')}>Réception</button>
           <button className={ecran === 'inventaire' ? 'actif' : ''} onClick={() => setEcran('inventaire')}>Inventaire</button>
+          <button className={ecran === 'rapports' ? 'actif' : ''} onClick={() => setEcran('rapports')}>Rapports</button>
           <button className={ecran === 'sauvegarde' ? 'actif' : ''} onClick={() => setEcran('sauvegarde')}>Sauvegarde</button>
         </nav>
       </header>
       <main className="page">
-        {ecran !== 'sauvegarde' && <RappelSauvegarde onOuvrir={() => setEcran('sauvegarde')} />}
+        {ecran !== 'sauvegarde' && ecran !== 'rapports' && <RappelSauvegarde onOuvrir={() => setEcran('sauvegarde')} />}
         {ecran === 'tableau' && <TableauDeBord onVoirCatalogue={() => setEcran('catalogue')} />}
         {ecran === 'vente' && <Vente />}
         {ecran === 'catalogue' && <Catalogue />}
         {ecran === 'reception' && <Reception />}
         {ecran === 'inventaire' && <Inventaire />}
+        {ecran === 'rapports' && <Rapports />}
         {ecran === 'sauvegarde' && <Sauvegarde />}
       </main>
     </>

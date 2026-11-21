@@ -168,10 +168,41 @@ button.danger { color: #b42318; border-color: #f1b5ae; }
 .colonne:last-child .info-bulle { left: auto; right: 0; transform: none; }
 details summary { cursor: pointer; color: var(--bleu); font-size: 0.85rem; }
 .lien-bouton { background: none; border: none; padding: 0; color: var(--bleu); text-decoration: underline; }
+.rapport { display: flex; flex-direction: column; gap: 12px; }
+.filtres-rapport { display: flex; flex-direction: column; gap: 8px; }
+.filtres-rapport .onglets { margin: 0; flex-wrap: wrap; }
+.filtres-rapport .deux label { display: flex; flex-direction: column; gap: 4px; font-size: 0.9rem; color: var(--doux); }
+.entete-document { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; flex-wrap: wrap; background: #fff; border: 1px solid var(--bord); border-radius: 10px; padding: 12px 14px; }
+.entete-document h3 { margin: 2px 0; font-size: 1.1rem; color: var(--bleu); }
+.entete-document p { margin: 0; font-size: 0.85rem; color: var(--doux); }
+.edite-le { font-size: 0.75rem !important; }
+.table-defilante { overflow-x: auto; background: #fff; border: 1px solid var(--bord); border-radius: 10px; }
+.table-rapport { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+.table-rapport th { text-align: left; font-weight: 600; color: var(--doux); background: #f0f4f8; padding: 8px 10px; white-space: nowrap; }
+.table-rapport td { padding: 7px 10px; border-top: 1px solid #eef1f5; vertical-align: top; }
+.table-rapport .nombre { text-align: right; white-space: nowrap; }
+.table-rapport .date { white-space: nowrap; }
+.table-rapport .date small { color: var(--doux); }
+.table-rapport .entree { color: #17663a; font-weight: 600; }
+.table-rapport .sortie { color: #b42318; font-weight: 600; }
+.table-rapport tfoot td { font-weight: 700; background: #f0f4f8; border-top: 2px solid #c9d3dd; }
+.table-rapport .code { white-space: nowrap; }
+@media (max-width: 520px) {
+  .table-rapport .code { display: block; }
+  .table-rapport td, .table-rapport th { padding: 7px 6px; }
+}
+.table-rapport .case-vide { min-width: 80px; border-bottom: 1px solid #c9d3dd; }
 @media print {
   body { background: #fff; }
-  .barre, .onglets, .entete-ecran, .sans-impression, .page > section > div > button { display: none !important; }
+  .barre, .onglets, .entete-ecran, .sans-impression, .page > section > div > button, .rappel { display: none !important; }
   .ticket { border: none; }
+  @page { margin: 12mm; }
+  .page { max-width: none; padding: 0; }
+  .entete-document, .table-defilante { border: none; padding: 0; overflow: visible; }
+  .table-rapport { font-size: 9pt; }
+  .table-rapport thead { display: table-header-group; }
+  .table-rapport tr { break-inside: avoid; }
+  .table-rapport th, .table-rapport tfoot td { background: #eee !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
 }
 
 @media (max-width: 520px) {
