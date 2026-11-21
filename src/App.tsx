@@ -11,8 +11,9 @@ import RappelSauvegarde from './sauvegarde/RappelSauvegarde'
 import TableauDeBord from './tableau/TableauDeBord'
 import Rapports from './rapports/Rapports'
 import Clients from './clients/Clients'
+import Parametres from './parametres/Parametres'
 
-type Ecran = 'tableau' | 'vente' | 'catalogue' | 'reception' | 'inventaire' | 'clients' | 'rapports' | 'sauvegarde'
+type Ecran = 'tableau' | 'vente' | 'catalogue' | 'reception' | 'inventaire' | 'clients' | 'rapports' | 'sauvegarde' | 'parametres'
 
 // Le composant principal : la barre du haut, puis l'écran choisi.
 // Les autres écrans (Sauvegarde, Tableau de bord…) s'ajouteront ici au fil des étapes.
@@ -37,6 +38,7 @@ function App() {
           <button className={ecran === 'clients' ? 'actif' : ''} onClick={() => setEcran('clients')}>Clients</button>
           <button className={ecran === 'rapports' ? 'actif' : ''} onClick={() => setEcran('rapports')}>Rapports</button>
           <button className={ecran === 'sauvegarde' ? 'actif' : ''} onClick={() => setEcran('sauvegarde')}>Sauvegarde</button>
+          <button className={ecran === 'parametres' ? 'actif' : ''} onClick={() => setEcran('parametres')}>Paramètres</button>
         </nav>
       </header>
       <main className="page">
@@ -49,6 +51,7 @@ function App() {
         {ecran === 'clients' && <Clients />}
         {ecran === 'rapports' && <Rapports />}
         {ecran === 'sauvegarde' && <Sauvegarde />}
+        {ecran === 'parametres' && <Parametres />}
       </main>
     </>
   )
