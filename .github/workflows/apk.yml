@@ -21,6 +21,11 @@ jobs:
         with:
           node-version: 22
       - run: npm install --no-save @bubblewrap/core@1.24.1
+      - name: Préparer le kit Android de GitHub pour Bubblewrap
+        run: |
+          [ -e "$ANDROID_HOME/tools" ] || ln -s "$ANDROID_HOME/cmdline-tools/latest" "$ANDROID_HOME/tools"
+          yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses > /dev/null || true
+          "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" "build-tools;34.0.0" > /dev/null
       - run: node apk/fabriquer-apk.mjs
         env:
           NUMERO_VERSION: ${{ github.run_number }}
