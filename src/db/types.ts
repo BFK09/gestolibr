@@ -27,6 +27,7 @@ export interface Fournisseur {
 export interface Article {
   id: string
   code: string // ex. CAH-001
+  codeBarre?: string // le code imprimé sous les barres (EAN-13…), s'il y en a un
   designation: string
   categorieId: string
   fournisseurId?: string

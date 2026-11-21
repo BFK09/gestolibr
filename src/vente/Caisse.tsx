@@ -6,6 +6,8 @@ import { stockParArticle } from '../db/stock'
 import { enregistrerVente } from '../db/vente'
 import { fcfa, lireEntier } from '../outils/format'
 import { sansAccents } from '../outils/texte'
+import { articleScanne, texteRecherche } from '../outils/codeBarre'
+import ScanCamera from '../scan/ScanCamera'
 import Ticket from './Ticket'
 
 export interface LignePanier { article: Article; quantite: number }
@@ -18,6 +20,8 @@ interface Props {
 
 export default function Caisse({ panierDepart, onRefaire }: Props) {
   const [recherche, setRecherche] = useState('')
+  const [scan, setScan] = useState(false)
+  const [erreurScan, setErreurScan] = useState('')
   const [panier, setPanier] = useState<LignePanier[]>(panierDepart)
   const [paiements, setPaiements] = useState<PaiementSaisi[]>([])
   const [recu, setRecu] = useState('') // espèces données par le client, pour calculer la monnaie
@@ -53,7 +57,7 @@ export default function Caisse({ panierDepart, onRefaire }: Props) {
 
   const texte = sansAccents(recherche.trim())
   const suggestions = texte
-    ? articles.filter((a) => sansAccents(`${a.code} ${a.designation}`).includes(texte)).slice(0, 8)
+    ? articles.filter((a) => sansAccents(texteRecherche(a)).includes(texte)).slice(0, 8)
     : []
 
   function ajouter(a: Article) {
@@ -132,7 +136,22 @@ export default function Caisse({ panierDepart, onRefaire }: Props) {
     <div className="caisse">
       <label className="recherche-article">
         Ajouter un article
-        <input type="search" value={recherche} onChange={(e) => setRecherche(e.target.value)} placeholder="Tape un code ou un nom…" autoFocus />
+        <span className="avec-scan">
+          <input type="search" value={recherche} onChange={(e) => { setRecherche(e.target.value); setErreurScan('') }} placeholder="Tape ou scanne un code, ou un nom…" autoFocus onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); const a = articleScanne(articles!, recherche, suggestions); if (a) ajouter(a); else if (recherche.trim()) setErreurScan(`Aucun article ne correspond à « ${recherche.trim()} ».`) } }} />
+          <button type="button" className="bouton-scan" onClick={() => setScan(true)} aria-label="Scanner avec la caméra">📷</button>
+        </span>
+        {erreurScan && <small className="alerte">{erreurScan}</small>}
+        {scan && (
+          <ScanCamera
+            onFermer={() => setScan(false)}
+            onCode={(c) => {
+              setScan(false)
+              const a = articleScanne(articles!, c, [])
+              if (a) ajouter(a)
+              else setErreurScan(`Aucun article n'a le code-barres ${c}. Ajoute-le dans la fiche de l'article (Catalogue).`)
+            }}
+          />
+        )}
         {suggestions.length > 0 && (
           <ul className="suggestions">
             {suggestions.map((a) => (

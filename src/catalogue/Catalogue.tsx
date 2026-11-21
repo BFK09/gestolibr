@@ -3,6 +3,7 @@ import { useLiveQuery } from 'dexie-react-hooks'
 import { db } from '../db/base'
 import { stockParArticle } from '../db/stock'
 import { fcfa } from '../outils/format'
+import { texteRecherche } from '../outils/codeBarre'
 import FicheArticle from './FicheArticle'
 
 // Écran Catalogue : la liste des articles, avec recherche et filtres.
@@ -29,7 +30,7 @@ export default function Catalogue() {
     if (!voirInactifs && !a.actif) return false
     if (categorieId && a.categorieId !== categorieId) return false
     if (seulementSansPrix && a.prixVente !== null) return false
-    if (texte && !sansAccents(`${a.code} ${a.designation}`).includes(texte)) return false
+    if (texte && !sansAccents(texteRecherche(a)).includes(texte)) return false
     return true
   })
 

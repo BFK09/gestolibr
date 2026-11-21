@@ -73,6 +73,9 @@ export class BaseLibrairie extends Dexie {
     // Version 4 : retrouver les retours partiels d'un ticket.
     this.version(4).stores({ ventes: 'id, &numero, date, clientId, annuleVenteId, retourVenteId' })
 
+    // Version 5 : chaque article peut avoir un code-barres, pour le retrouver en scannant.
+    this.version(5).stores({ articles: 'id, &code, codeBarre, designation, categorieId, fournisseurId' })
+
     // "populate" ne s'exécute qu'une fois : à la toute première ouverture.
     this.on('populate', () => chargerDonneesDeDepart(this))
   }

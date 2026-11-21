@@ -5,6 +5,7 @@ import type { Article } from '../db/types'
 import { anneeScolaire, enregistrerListe, supprimerListe } from '../db/listes'
 import { fcfa, lireEntier } from '../outils/format'
 import { sansAccents } from '../outils/texte'
+import { texteRecherche } from '../outils/codeBarre'
 
 interface Props {
   listeId: string | null // null = nouvelle liste
@@ -47,7 +48,7 @@ export default function FicheListe({ listeId, copieDe, onFermer, onCopier }: Pro
   if (!articles || !ecoles) return <p>Chargement…</p>
 
   const texte = sansAccents(recherche.trim())
-  const suggestions = texte ? articles.filter((a) => a.actif && sansAccents(`${a.code} ${a.designation}`).includes(texte)).slice(0, 8) : []
+  const suggestions = texte ? articles.filter((a) => a.actif && sansAccents(texteRecherche(a)).includes(texte)).slice(0, 8) : []
   const total = lignes.reduce((s, l) => s + (lireEntier(l.quantite) || 0) * (l.article.prixVente ?? 0), 0)
 
   function ajouter(a: Article) {

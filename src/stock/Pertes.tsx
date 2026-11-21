@@ -6,6 +6,7 @@ import { enregistrerPerte } from '../db/vente'
 import { stockParArticle } from '../db/stock'
 import { fcfa, lireEntier } from '../outils/format'
 import { sansAccents } from '../outils/texte'
+import { texteRecherche } from '../outils/codeBarre'
 
 const MOTIFS = ['Casse', 'Vol', 'Abîmé / périmé', 'Usage interne (boutique)', 'Cadeau / don', 'Autre']
 
@@ -30,7 +31,7 @@ export default function Pertes() {
   if (!articles || !stocks || !recentes) return <p>Chargement…</p>
 
   const texte = sansAccents(recherche.trim())
-  const suggestions = texte ? articles.filter((a) => sansAccents(`${a.code} ${a.designation}`).includes(texte)).slice(0, 8) : []
+  const suggestions = texte ? articles.filter((a) => sansAccents(texteRecherche(a)).includes(texte)).slice(0, 8) : []
   const q = lireEntier(quantite)
   const valeur = article && q && !Number.isNaN(q) ? q * (article.coutMoyen ?? 0) : 0
   const totalMois = recentes.reduce((s, m) => s + -m.quantite * (m.article?.coutMoyen ?? 0), 0)

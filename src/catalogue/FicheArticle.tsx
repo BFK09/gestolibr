@@ -4,6 +4,7 @@ import { db, nouvelId } from '../db/base'
 import type { Article } from '../db/types'
 import { fcfa, lireEntier } from '../outils/format'
 import { codeSuivant } from './codeSuivant'
+import ScanCamera from '../scan/ScanCamera'
 
 interface Props {
   articleId: string // un id existant, ou 'nouveau'
@@ -14,6 +15,7 @@ interface Props {
 // puis vérifiées et converties au moment d'enregistrer.
 interface Saisie {
   code: string
+  codeBarre: string
   designation: string
   categorieId: string
   unite: string
@@ -34,17 +36,19 @@ export default function FicheArticle({ articleId, onFermer }: Props) {
   const [saisie, setSaisie] = useState<Saisie | null>(null)
   const [erreurs, setErreurs] = useState<string[]>([])
   const [codeModifieALaMain, setCodeModifieALaMain] = useState(false)
+  const [scan, setScan] = useState(false)
 
   // Au chargement : on remplit le formulaire avec l'article, ou des valeurs vides.
   useEffect(() => {
     if (estNouveau) {
-      setSaisie({ code: '', designation: '', categorieId: '', unite: 'pièce', prixVente: '', seuilAlerte: '', actif: true })
+      setSaisie({ code: '', codeBarre: '', designation: '', categorieId: '', unite: 'pièce', prixVente: '', seuilAlerte: '', actif: true })
     } else {
       db.articles.get(articleId).then((a) => {
         if (!a) return
         setArticle(a)
         setSaisie({
           code: a.code,
+          codeBarre: a.codeBarre ?? '',
           designation: a.designation,
           categorieId: a.categorieId,
           unite: a.unite,
@@ -84,6 +88,7 @@ export default function FicheArticle({ articleId, onFermer }: Props) {
     const code = s.code.trim().toUpperCase()
     const prixVente = lireEntier(s.prixVente)
     const seuilAlerte = lireEntier(s.seuilAlerte)
+    const codeBarre = s.codeBarre.trim() || undefined
 
     // Vérifications avant d'enregistrer.
     const pb: string[] = []
@@ -95,11 +100,14 @@ export default function FicheArticle({ articleId, onFermer }: Props) {
     if (Number.isNaN(seuilAlerte)) pb.push("Le seuil d'alerte doit être un nombre entier.")
     const memeCode = code ? await db.articles.where('code').equals(code).first() : undefined
     if (memeCode && memeCode.id !== article?.id) pb.push(`Le code ${code} est déjà utilisé par « ${memeCode.designation} ».`)
+    const memeBarre = codeBarre ? await db.articles.where('codeBarre').equals(codeBarre).first() : undefined
+    if (memeBarre && memeBarre.id !== article?.id) pb.push(`Ce code-barres est déjà celui de « ${memeBarre.designation} ».`)
     setErreurs(pb)
     if (pb.length > 0) return
 
     const donnees = {
       code,
+      codeBarre,
       designation: s.designation.trim(),
       categorieId: s.categorieId,
       unite: s.unite.trim(),
@@ -156,6 +164,21 @@ export default function FicheArticle({ articleId, onFermer }: Props) {
             autoFocus={estNouveau}
           />
         </label>
+
+        <label>
+          Code-barres (facultatif)
+          <span className="avec-scan">
+            <input
+              value={saisie.codeBarre}
+              onChange={(e) => changer('codeBarre', e.target.value)}
+              onKeyDown={(e) => { if (e.key === 'Enter') e.preventDefault() }}
+              placeholder="Scanne ou tape le code sous les barres"
+              inputMode="numeric"
+            />
+            <button type="button" className="bouton-scan" onClick={() => setScan(true)} aria-label="Scanner avec la caméra">📷</button>
+          </span>
+        </label>
+        {scan && <ScanCamera onCode={(c) => { changer('codeBarre', c); setScan(false) }} onFermer={() => setScan(false)} />}
 
         <div className="deux">
           <label>

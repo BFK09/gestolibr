@@ -4,6 +4,8 @@ import { db } from '../db/base'
 import type { Article } from '../db/types'
 import { enregistrerReception } from '../db/reception'
 import { fcfa, lireEntier } from '../outils/format'
+import { articleScanne, texteRecherche } from '../outils/codeBarre'
+import ScanCamera from '../scan/ScanCamera'
 
 // Une ligne en cours de saisie (les nombres restent du texte jusqu'à l'enregistrement).
 interface LigneSaisie {
@@ -20,6 +22,8 @@ export default function NouvelleReception() {
   const [reference, setReference] = useState('')
   const [date, setDate] = useState(aujourdhui())
   const [recherche, setRecherche] = useState('')
+  const [scan, setScan] = useState(false)
+  const [erreurScan, setErreurScan] = useState('')
   const [lignes, setLignes] = useState<LigneSaisie[]>([])
   const [erreurs, setErreurs] = useState<string[]>([])
   const [message, setMessage] = useState('')
@@ -31,7 +35,7 @@ export default function NouvelleReception() {
   // Suggestions : les 8 premiers articles qui correspondent au texte tapé.
   const texte = sansAccents(recherche.trim())
   const suggestions = texte
-    ? articles.filter((a) => sansAccents(`${a.code} ${a.designation}`).includes(texte)).slice(0, 8)
+    ? articles.filter((a) => sansAccents(texteRecherche(a)).includes(texte)).slice(0, 8)
     : []
 
   function ajouter(a: Article) {
@@ -102,7 +106,22 @@ export default function NouvelleReception() {
 
       <label className="recherche-article">
         Ajouter un article
-        <input type="search" value={recherche} onChange={(e) => setRecherche(e.target.value)} placeholder="Tape un code ou un nom…" />
+        <span className="avec-scan">
+          <input type="search" value={recherche} onChange={(e) => { setRecherche(e.target.value); setErreurScan('') }} placeholder="Tape ou scanne un code, ou un nom…" onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); const a = articleScanne(articles!, recherche, suggestions); if (a) ajouter(a); else if (recherche.trim()) setErreurScan(`Aucun article ne correspond à « ${recherche.trim()} ».`) } }} />
+          <button type="button" className="bouton-scan" onClick={() => setScan(true)} aria-label="Scanner avec la caméra">📷</button>
+        </span>
+        {erreurScan && <small className="alerte">{erreurScan}</small>}
+        {scan && (
+          <ScanCamera
+            onFermer={() => setScan(false)}
+            onCode={(c) => {
+              setScan(false)
+              const a = articleScanne(articles!, c, [])
+              if (a) ajouter(a)
+              else setErreurScan(`Aucun article n'a le code-barres ${c}. Ajoute-le dans la fiche de l'article (Catalogue).`)
+            }}
+          />
+        )}
         {suggestions.length > 0 && (
           <ul className="suggestions">
             {suggestions.map((a) => (

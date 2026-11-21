@@ -5,6 +5,7 @@ import { stockParArticle } from '../db/stock'
 import { enregistrerInventaire } from '../db/inventaire'
 import { lireEntier } from '../outils/format'
 import { sansAccents } from '../outils/texte'
+import { texteRecherche } from '../outils/codeBarre'
 
 // Écran Inventaire : on compte ce qu'il y a sur les étagères et on le saisit.
 // On peut compter une catégorie à la fois ; seuls les articles remplis sont enregistrés.
@@ -24,7 +25,7 @@ export default function Inventaire() {
   const texte = sansAccents(recherche.trim())
   const visibles = articles.filter((a) =>
     (!categorieId || a.categorieId === categorieId) &&
-    (!texte || sansAccents(`${a.code} ${a.designation}`).includes(texte)))
+    (!texte || sansAccents(texteRecherche(a)).includes(texte)))
   const remplis = Object.entries(comptes).filter(([, v]) => v.trim() !== '')
 
   async function enregistrer() {
