@@ -35,8 +35,8 @@ export default function Caisse({ panierDepart, onRefaire }: Props) {
   // Après une vente : on affiche le ticket, puis on repart sur un panier vide.
   if (ticketId) return <Ticket venteId={ticketId} onNouvelleVente={() => setTicketId(null)} onRefaire={onRefaire} />
 
-  const especes = modes.find((m) => m.nom === 'Espèces')
-  const credit = modes.find((m) => m.nom === 'Crédit')
+  const especes = modes.find((m) => m.nature === 'especes')
+  const credit = modes.find((m) => m.nature === 'credit')
   const total = panier.reduce((s, l) => s + l.quantite * (l.article.prixVente ?? 0), 0)
 
   // Sans paiement saisi, tout est payé en espèces par défaut.

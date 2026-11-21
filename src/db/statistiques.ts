@@ -7,6 +7,7 @@ export interface Resume {
   tickets: number // tickets valides (ni annulés, ni contre-tickets)
   panierMoyen: number
   parMode: { nom: string; montant: number }[]
+  remboursements: number // dettes de clients encaissées pendant la période
   meilleurs: { designation: string; quantite: number; montant: number }[]
 }
 
@@ -17,6 +18,8 @@ export async function resumePeriode(debut: string, fin: string): Promise<Resume>
   const lignes = await db.lignesVente.where('venteId').anyOf(ids).toArray()
   const encaissements = await db.encaissements.where('venteId').anyOf(ids).toArray()
   const modes = await db.modesPaiement.toCollection().sortBy('ordre')
+  const remboursements = (await db.encaissements.where('date').between(debut, fin, true, false).filter((e) => e.type === 'remboursement_credit').toArray())
+    .reduce((s, e) => s + e.montant, 0)
 
   // Un contre-ticket a des quantités négatives : en additionnant tout, l'annulation s'efface d'elle-même.
   const chiffreAffaires = ventes.reduce((s, v) => s + v.total, 0)
@@ -43,6 +46,7 @@ export async function resumePeriode(debut: string, fin: string): Promise<Resume>
       montant: encaissements.filter((e) => e.modePaiementId === m.id).reduce((s, e) => s + e.montant, 0),
     })),
     meilleurs,
+    remboursements,
   }
 }
 

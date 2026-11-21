@@ -39,7 +39,10 @@ export interface Article {
 
 export interface ModePaiement {
   id: string
-  nom: string // Espèces, Mobile money, Crédit
+  nom: string // Espèces, Mobile money, Crédit… (modifiable)
+  // Ce que le mode représente vraiment : le calcul des dettes se base sur « credit »,
+  // pas sur le nom, pour qu'on puisse renommer un mode sans rien casser.
+  nature: 'especes' | 'mobile_money' | 'credit' | 'autre'
   ordre: number // ordre d'affichage dans la caisse
   actif: boolean
 }
@@ -49,7 +52,8 @@ export interface Client {
   nom: string
   type: 'particulier' | 'ecole' | 'entreprise'
   telephone?: string
-  plafondCredit: number
+  plafondCredit: number // 0 = pas de limite
+  note?: string
 }
 
 // Un ticket de vente. Ses articles sont dans LigneVente.
@@ -77,6 +81,9 @@ export interface LigneVente {
 }
 
 // Argent reçu ou rendu. Un ticket peut avoir plusieurs encaissements (paiement partagé).
+// - paiement : part d'un ticket (si le mode est « crédit », c'est une dette du client) ;
+// - remboursement_credit : le client règle une partie de sa dette (sans ticket) ;
+// - rendu : argent rendu lors de l'annulation d'un ticket.
 export interface Encaissement {
   id: string
   date: string

@@ -192,6 +192,8 @@ details summary { cursor: pointer; color: var(--bleu); font-size: 0.85rem; }
   .table-rapport td, .table-rapport th { padding: 7px 6px; }
 }
 .table-rapport .case-vide { min-width: 80px; border-bottom: 1px solid #c9d3dd; }
+.fiche-client { display: flex; flex-direction: column; gap: 12px; }
+.fiche-client .carte label, .carte .deux label { display: flex; flex-direction: column; gap: 4px; font-size: 0.9rem; color: var(--doux); }
 @media print {
   body { background: #fff; }
   .barre, .onglets, .entete-ecran, .sans-impression, .page > section > div > button, .rappel { display: none !important; }

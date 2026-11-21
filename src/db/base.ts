@@ -59,6 +59,17 @@ export class BaseLibrairie extends Dexie {
       boutique: 'id',
     })
 
+    // Version 3 : chaque mode de paiement indique sa nature (espèces, mobile money, crédit),
+    // et on peut chercher les encaissements par type. Les données existantes sont complétées.
+    this.version(3)
+      .stores({ encaissements: 'id, date, venteId, clientId, modePaiementId, type' })
+      .upgrade(async (tx) => {
+        await tx.table('modesPaiement').toCollection().modify((m) => {
+          const n = String(m.nom).toLowerCase()
+          m.nature ??= n.startsWith('esp') ? 'especes' : n.includes('mobile') ? 'mobile_money' : n.startsWith('cr') ? 'credit' : 'autre'
+        })
+      })
+
     // "populate" ne s'exécute qu'une fois : à la toute première ouverture.
     this.on('populate', () => chargerDonneesDeDepart(this))
   }

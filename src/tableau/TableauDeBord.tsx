@@ -52,6 +52,7 @@ export default function TableauDeBord({ onVoirCatalogue }: { onVoirCatalogue: ()
           </tbody>
         </table>
         <p className="info">« Crédit » = montant vendu à crédit, pas encore encaissé.</p>
+        {resume.remboursements > 0 && <p className="info">Remboursements de crédit reçus sur la période : <strong>{fcfa(resume.remboursements)}</strong></p>}
       </div>
 
       <div className="carte">

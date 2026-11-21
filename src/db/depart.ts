@@ -40,9 +40,12 @@ export async function chargerDonneesDeDepart(db: BaseLibrairie) {
     actif: true,
   }))
 
-  const modes: ModePaiement[] = ['Espèces', 'Mobile money', 'Crédit'].map((nom, i) => ({
+  const modes: ModePaiement[] = ([
+    ['Espèces', 'especes'], ['Mobile money', 'mobile_money'], ['Crédit', 'credit'],
+  ] as const).map(([nom, nature], i) => ({
     id: crypto.randomUUID(),
     nom,
+    nature,
     ordre: i + 1,
     actif: true,
   }))

@@ -1,4 +1,5 @@
 import { db, nouvelId } from './base'
+import { detteClient } from './clients'
 
 export interface LignePanier {
   articleId: string
@@ -42,8 +43,9 @@ export async function enregistrerVente(v: NouvelleVente): Promise<string> {
 
       // 3. Le client : obligatoire pour un crédit. Retrouvé par son nom, sinon créé.
       const modes = await db.modesPaiement.toArray()
-      const credit = modes.find((m) => m.nom === 'Crédit')
-      const aCredit = v.paiements.some((p) => p.modePaiementId === credit?.id && p.montant > 0)
+      const credit = modes.find((m) => m.nature === 'credit')
+      const montantCredit = v.paiements.filter((p) => p.modePaiementId === credit?.id).reduce((s, p) => s + p.montant, 0)
+      const aCredit = montantCredit > 0
       let clientId: string | undefined
       const nom = v.clientNom?.trim()
       if (aCredit && !nom) throw new Error('Un paiement à crédit demande le nom du client.')
@@ -52,6 +54,13 @@ export async function enregistrerVente(v: NouvelleVente): Promise<string> {
         clientId = existant?.id ?? (await db.clients.add({
           id: nouvelId(), nom, type: 'particulier', telephone: v.clientTelephone?.trim() || undefined, plafondCredit: 0,
         }))
+        // Le plafond de crédit : la nouvelle dette ne doit pas le dépasser (0 = pas de limite).
+        if (aCredit && existant && existant.plafondCredit > 0) {
+          const dette = await detteClient(existant.id)
+          if (dette + montantCredit > existant.plafondCredit) {
+            throw new Error(`Plafond de crédit dépassé pour ${existant.nom} : il doit déjà ${dette} FCFA, plafond ${existant.plafondCredit} FCFA.`)
+          }
+        }
       }
 
       // 4. Le ticket, avec le numéro suivant.
