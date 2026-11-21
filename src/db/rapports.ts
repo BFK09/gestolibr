@@ -90,3 +90,54 @@ export async function etatStock(): Promise<LigneEtatStock[]> {
     stock: stocks.get(a.id) ?? 0, coutMoyen: a.coutMoyen, prixVente: a.prixVente, seuilAlerte: a.seuilAlerte,
   }))
 }
+
+// ---------- Rapport des ventes ----------
+// Une ligne par article vendu (ou rendu / annulé : quantités négatives) sur la période.
+// Prix et coût sont ceux figés au moment de la vente : le rapport ne change pas si on modifie les prix ensuite.
+export interface LigneRapportVente {
+  id: string
+  date: string
+  numero: number
+  nature: 'vente' | 'annulation' | 'retour'
+  articleId: string
+  code: string
+  designation: string
+  categorieId: string
+  quantite: number
+  montant: number
+  cout: number
+}
+
+export async function rapportVentes(debut: string, fin: string) {
+  const ventes = await db.ventes.where('date').between(debut, fin, true, false).toArray()
+  const parId = new Map(ventes.map((v) => [v.id, v]))
+  const lignes = await db.lignesVente.where('venteId').anyOf(ventes.map((v) => v.id)).toArray()
+  const articles = new Map((await db.articles.toArray()).map((a) => [a.id, a]))
+  const encaissements = await db.encaissements.where('venteId').anyOf(ventes.map((v) => v.id)).toArray()
+  const modes = await db.modesPaiement.toCollection().sortBy('ordre')
+
+  const detail = lignes.map((l): LigneRapportVente => {
+    const v = parId.get(l.venteId)!
+    return {
+      id: l.id,
+      date: v.date,
+      numero: v.numero,
+      nature: v.annuleVenteId ? 'annulation' : v.retourVenteId ? 'retour' : 'vente',
+      articleId: l.articleId,
+      code: articles.get(l.articleId)?.code ?? '',
+      designation: l.designation,
+      categorieId: l.categorieId,
+      quantite: l.quantite,
+      montant: l.quantite * l.prixUnitaire,
+      cout: l.quantite * l.coutUnitaire,
+    }
+  }).sort((a, b) => a.date.localeCompare(b.date) || a.numero - b.numero)
+
+  const annulees = new Set(ventes.map((v) => v.annuleVenteId).filter(Boolean))
+  return {
+    detail,
+    tickets: ventes.filter((v) => !v.annuleVenteId && !v.retourVenteId && !annulees.has(v.id)).length,
+    parMode: modes.map((m) => ({ nom: m.nom, montant: encaissements.filter((e) => e.modePaiementId === m.id).reduce((s, e) => s + e.montant, 0) }))
+      .filter((m) => m.montant !== 0),
+  }
+}

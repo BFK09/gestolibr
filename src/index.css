@@ -236,3 +236,10 @@ input.petit { width: 90px; }
 .avec-scan input { flex: 1; min-width: 0; }
 .bouton-scan { padding: 0 12px; font-size: 1.2rem; }
 .fiche.scan video { width: 100%; border-radius: 8px; background: #000; max-height: 50vh; object-fit: cover; }
+
+/* Rapport des ventes */
+.resume-ventes { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 8px; margin: 8px 0 12px; }
+.resume-ventes > div { background: #fff; border: 1px solid #ddd; border-radius: 8px; padding: 8px 10px; display: flex; flex-direction: column; }
+.resume-ventes strong { font-size: 1.1rem; }
+.table-rapport tr.ligne-retour td { color: #a33; }
+@media print { .resume-ventes > div { border-color: #999; } }
