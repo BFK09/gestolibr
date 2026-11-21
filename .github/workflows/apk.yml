@@ -26,10 +26,16 @@ jobs:
           [ -e "$ANDROID_HOME/tools" ] || ln -s "$ANDROID_HOME/cmdline-tools/latest" "$ANDROID_HOME/tools"
           yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses > /dev/null || true
           "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" "build-tools;34.0.0" > /dev/null
+      - name: Récupérer la clé de signature fixe (secrets du dépôt)
+        env:
+          CLE_APK_B64: ${{ secrets.CLE_APK_B64 }}
+        run: |
+          if [ -z "$CLE_APK_B64" ]; then echo "Secret CLE_APK_B64 absent : ajoutez-le dans Settings > Secrets and variables > Actions."; exit 1; fi
+          echo "$CLE_APK_B64" | base64 -d > apk/cle.keystore
       - run: node apk/fabriquer-apk.mjs
         env:
           NUMERO_VERSION: ${{ github.run_number }}
-          MOT_DE_PASSE_CLE: ${{ github.run_id }}-gestolibr
+          MOT_DE_PASSE_CLE: ${{ secrets.MOT_DE_PASSE_CLE }}
       - name: Mettre l'APK en téléchargement
         env:
           GH_TOKEN: ${{ github.token }}
