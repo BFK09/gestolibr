@@ -69,3 +69,40 @@ export async function historiqueClient(clientId: string): Promise<LigneHistoriqu
   }
   return lignes
 }
+
+// Depuis quand le client doit de l'argent : on solde ses achats à crédit du plus ancien au plus récent
+// avec ses remboursements (et annulations / retours) ; la date du plus ancien achat pas encore payé
+// est le début de la dette. Renvoie null si le client ne doit rien.
+export async function debutDeLaDette(clientId: string): Promise<string | null> {
+  const lignes = await historiqueClient(clientId)
+  const restants: { date: string; reste: number }[] = []
+  let avoir = 0 // remboursé en avance
+  for (const l of lignes) {
+    if (l.credit > 0) {
+      const utilise = Math.min(avoir, l.credit)
+      avoir -= utilise
+      if (l.credit - utilise > 0) restants.push({ date: l.date, reste: l.credit - utilise })
+    }
+    let r = l.remboursement
+    while (r > 0 && restants.length) {
+      const pris = Math.min(r, restants[0].reste)
+      restants[0].reste -= pris
+      r -= pris
+      if (restants[0].reste === 0) restants.shift()
+    }
+    avoir += r
+  }
+  return restants[0]?.date ?? null
+}
+
+// Nombre de jours entre une date ISO et aujourd'hui.
+export const joursDepuis = (iso: string) => Math.floor((Date.now() - new Date(iso).getTime()) / 86_400_000)
+
+// Au-delà de ce nombre de jours, un crédit est « à relancer ».
+export const DELAI_RELANCE = 30
+
+export function messageRelance(nomClient: string, dette: number, nomBoutique: string, depuis: string | null) {
+  const montant = `${new Intl.NumberFormat('fr-FR').format(dette)} FCFA`
+  const quand = depuis ? ` depuis le ${new Date(depuis).toLocaleDateString('fr-FR')}` : ''
+  return `Bonjour ${nomClient}, c'est ${nomBoutique}. Petit rappel amical : il reste ${montant} à régler sur votre compte${quand}. Vous pouvez passer à la librairie quand cela vous arrange. Merci et bonne journée !`
+}

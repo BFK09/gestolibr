@@ -54,6 +54,9 @@ npm run build    # fabrique la version finale dans le dossier dist
 - `src/outils/codeBarre.ts` : retrouve l'article quand une douchette tape un code-barres puis Entrée.
 - `src/rapports/RapportVentes.tsx` (+ `rapportVentes` dans `src/db/rapports.ts`) : rapport des ventes par article, catégorie, jour ou ligne par ligne, avec coût et marge.
 - `src/outils/excel.ts` : fabrique un vrai fichier Excel (.xlsx) dans le navigateur, sans serveur.
+- `src/outils/whatsapp.ts` : ouvre WhatsApp avec un message déjà écrit (ticket, rappel de crédit) ; un numéro à 10 chiffres reçoit l'indicatif +225.
+- Rappels de crédit : `debutDeLaDette` et `messageRelance` dans `src/db/clients.ts` ; filtre « À relancer » (plus de 30 jours) dans l'écran Clients, bouton « Rappel WhatsApp » dans la fiche du client.
+- `src/outils/affichage.ts` et `src/parametres/Affichage.tsx` : mode clair / sombre / automatique et taille du texte, propres à chaque appareil.
 - `src/outils/texte.ts` : recherche sans tenir compte des accents.
 - `src/outils/format.ts` : affichage des montants en FCFA et lecture des nombres saisis.
 - `src/data/catalogue_depart.csv` : copie du catalogue de départ, incluse dans l'application pour marcher hors ligne.

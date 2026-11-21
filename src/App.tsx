@@ -19,6 +19,8 @@ import type { Ecran } from './navigation/ecrans'
 // Le composant principal : la navigation, puis l'écran choisi.
 function App() {
   const [ecran, setEcran] = useState<Ecran>('vente')
+  // Toucher un onglet du menu (même celui déjà ouvert) ramène à la page d'accueil de cet écran.
+  const [visite, setVisite] = useState(0)
   // null = pas encore configurée ; undefined = lecture en cours.
   const boutique = useLiveQuery(async () => (await db.boutique.get('principale')) ?? null, [])
   if (boutique === undefined) return null
@@ -27,8 +29,8 @@ function App() {
 
   return (
     <>
-      <Navigation nomBoutique={boutique.nom} ecran={ecran} onChoisir={(e) => { setEcran(e); window.scrollTo(0, 0) }} />
-      <main className="page" key={ecran}>
+      <Navigation nomBoutique={boutique.nom} ecran={ecran} onChoisir={(e) => { setEcran(e); setVisite((v) => v + 1); window.scrollTo(0, 0) }} />
+      <main className="page" key={`${ecran}-${visite}`}>
         {ecran !== 'sauvegarde' && ecran !== 'rapports' && <RappelSauvegarde onOuvrir={() => setEcran('sauvegarde')} />}
         {ecran === 'tableau' && <TableauDeBord onVoirCatalogue={() => setEcran('catalogue')} />}
         {ecran === 'vente' && <Vente />}

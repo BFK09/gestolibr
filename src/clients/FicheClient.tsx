@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { db, nouvelId } from '../db/base'
-import { detteClient, enregistrerRemboursement, historiqueClient } from '../db/clients'
+import { debutDeLaDette, DELAI_RELANCE, detteClient, enregistrerRemboursement, historiqueClient, joursDepuis, messageRelance } from '../db/clients'
+import { ouvrirWhatsApp } from '../outils/whatsapp'
+import { MessageCircle } from 'lucide-react'
 import type { Client, Encaissement } from '../db/types'
 import { fcfa, lireEntier } from '../outils/format'
 
@@ -21,6 +23,7 @@ export default function FicheClient({ clientId, onFermer }: Props) {
     client: estNouveau ? undefined : await db.clients.get(clientId),
     dette: estNouveau ? 0 : await detteClient(clientId),
     historique: estNouveau ? [] : await historiqueClient(clientId),
+    depuis: estNouveau ? null : await debutDeLaDette(clientId),
     modes: (await db.modesPaiement.toCollection().sortBy('ordre')).filter((m) => m.actif && m.nature !== 'credit'),
     boutique: await db.boutique.get('principale'),
   }), [clientId])
@@ -33,7 +36,8 @@ export default function FicheClient({ clientId, onFermer }: Props) {
   }, [d?.client?.id])
 
   if (!d) return <p>Chargement…</p>
-  const { client, dette, historique, modes, boutique } = d
+  const { client, dette, historique, modes, boutique, depuis } = d
+  const jours = depuis ? joursDepuis(depuis) : 0
 
   async function enregistrer() {
     setErreur(''); setMessage('')
@@ -98,11 +102,18 @@ export default function FicheClient({ clientId, onFermer }: Props) {
       {!estNouveau && (
         <div className="carte">
           <div className="tuiles">
-            <div className="tuile"><small>Doit actuellement</small><strong className={dette > 0 ? 'alerte' : ''}>{fcfa(dette)}</strong></div>
+            <div className="tuile"><small>Doit actuellement</small><strong className={dette > 0 ? 'alerte' : ''}>{fcfa(dette)}</strong>{dette > 0 && depuis && <small>depuis {jours} jour{jours > 1 ? 's' : ''}</small>}</div>
             <div className="tuile"><small>Plafond de crédit</small><strong>{client?.plafondCredit ? fcfa(client.plafondCredit) : 'Sans limite'}</strong></div>
           </div>
           {dette > 0 && (
             <>
+              <div className={`relance ${jours >= DELAI_RELANCE ? 'urgente' : ''}`}>
+                <span>{jours >= DELAI_RELANCE ? `Crédit en retard (plus de ${DELAI_RELANCE} jours).` : 'Envoyer un rappel au client ?'}</span>
+                <button onClick={() => ouvrirWhatsApp(messageRelance(client!.nom, dette, boutique?.nom ?? 'la librairie', depuis), client?.telephone)}>
+                  <MessageCircle size={18} /> Rappel WhatsApp
+                </button>
+              </div>
+              {!client?.telephone && <p className="info">Pas de téléphone enregistré : WhatsApp te demandera à qui envoyer. Ajoute le numéro plus bas.</p>}
               <strong>Enregistrer un remboursement</strong>
               <div className="ligne-paiement">
                 <select value={modeId || modes[0]?.id} onChange={(e) => setModeId(e.target.value)}>

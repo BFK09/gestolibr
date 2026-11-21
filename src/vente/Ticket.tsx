@@ -5,6 +5,8 @@ import { annulerVente, quantitesRetournees, retournerArticles } from '../db/vent
 import { lireEntier } from '../outils/format'
 import { fcfa } from '../outils/format'
 import type { LignePanier } from './Caisse'
+import { ouvrirWhatsApp } from '../outils/whatsapp'
+import { MessageCircle, Printer } from 'lucide-react'
 
 interface Props {
   venteId: string
@@ -56,6 +58,24 @@ export default function Ticket({ venteId: venteIdDepart, onNouvelleVente, onRefa
     } catch (e) {
       setErreur((e as Error).message)
     }
+  }
+
+  // Le ticket en texte, pour l'envoyer par WhatsApp.
+  function texteTicket() {
+    const l = [
+      `*${boutique?.nom ?? 'Librairie'}*`,
+      estAnnulation ? `ANNULATION du ticket n° ${original?.numero}` : estRetour ? `RETOUR sur le ticket n° ${original?.numero}` : '',
+      `Ticket n° ${vente!.numero} du ${new Date(vente!.date).toLocaleString('fr-FR')}`,
+      client ? `Client : ${client.nom}` : '',
+      '',
+      ...lignes.map((x) => `${x.designation}\n   ${x.quantite} × ${fcfa(x.prixUnitaire)} = ${fcfa(x.quantite * x.prixUnitaire)}`),
+      '',
+      `*TOTAL : ${fcfa(vente!.total)}*`,
+      ...encaissements.map((e) => `${e.type === 'rendu' ? 'Rendu ' : ''}${modes.get(e.modePaiementId)} : ${fcfa(e.montant)}`),
+      '',
+      'Merci de votre visite !',
+    ]
+    return l.filter((x, i) => x !== '' || l[i - 1] !== '').join('\n').replace(/^\n+/, '')
   }
 
   async function annuler(puisRefaire: boolean) {
@@ -149,7 +169,8 @@ export default function Ticket({ venteId: venteIdDepart, onNouvelleVente, onRefa
         </div>
       ) : (
         <div className="boutons sans-impression">
-          <button onClick={() => window.print()}>Imprimer</button>
+          <button onClick={() => window.print()}><Printer size={18} /> Imprimer</button>
+          <button onClick={() => ouvrirWhatsApp(texteTicket(), client?.telephone)}><MessageCircle size={18} /> WhatsApp</button>
           {peutRetourner && <button onClick={() => { setErreur(''); setRetour({}) }}>Retour d'articles…</button>}
           {peutRetourner && retours.length === 0 && <button className="danger" onClick={() => setConfirmer(true)}>Annuler ce ticket…</button>}
           {onNouvelleVente && <button className="principal" onClick={onNouvelleVente}>Nouvelle vente</button>}
